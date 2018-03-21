@@ -1,0 +1,108 @@
+{
+  "author": "hilkenan",
+  "name": "sp-formgen-react",
+  "version": "0.1.0",
+  "description": "Formula generator for SharePoint with JSON for react. UI Fabric controls are used for rendering",
+  "license": "MIT",
+  "homepage": "https://github.com/hilkenan/sp-formgen-react",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "module": "es",
+  "keywords": [
+    "react",
+    "uifabric",
+    "sharepoint",
+    "o365",
+    "form",
+    "genertor",
+    "react-component",
+    "translatable",
+    "loclizable",
+    "typescript",
+    "responsive",
+    "json"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/hilkenan/sp-formgen-react"
+  },
+  "readme": "README.md",
+  "bugs": {
+    "url": "https://github.com/hilkenan/sp-formgen-react/issues"
+  },
+  "dependencies": {
+    "formgen-react": "^0.4.0",
+    "gd-sprest": "^3.6.3",
+    "gd-sprest-react": "^2.9.0",
+    "inversify": "^4.11.1",
+    "office-ui-fabric-react": "^5.64.4",
+    "react": "^16.2.0",
+    "react-dom": "^16.2.0",
+    "react-scripts-ts": "2.14.0",
+    "reflect-metadata": "^0.1.12",
+    "sinon": "^4.4.2"
+  },
+  "scripts": {
+    "proxy": "node ./src/proxy",
+    "build-css": "node-sass-chokidar src/ -o src/",
+    "watch-css": "npm run build-css && node-sass-chokidar src/ -o src/ --watch --recursive",
+    "start": "react-scripts-ts start && watch-css",
+    "build": "react-scripts-ts build",
+    "test": "react-scripts-ts test --env=jsdom",
+    "eject": "react-scripts-ts eject",
+    "run": "ts-node ./src/index.tsx",
+    "serve": "concurrently --kill-others \"npm run proxy\" \"npm run start\"",
+    "prepublishOnly": "tsc -p ./ --outDir dist/ && node-sass-chokidar src/styles -o dist/styles"
+  },
+  "jest": {
+    "collectCoverageFrom": [
+      "src/**/*.{ts,tsx}",
+      "!src/**/*.types.ts",
+      "!src/index.tsx",
+      "!src/index.ts",
+      "!src/registerServiceWorker.ts"
+    ],
+    "coverageReporters": [
+      "lcov",
+      "text"
+    ]
+  },
+  "badges": [
+    {
+      "href": "http://badge.fury.io/js/sp-formgen-react",
+      "url": "https://badge.fury.io/js/sp-formgen-react.svg",
+      "description": "npm version"
+    },
+    {
+      "href": "https://travis-ci.org/hilkenan/sp-formgen-react",
+      "url": "https://secure.travis-ci.org/hilkenan/sp-formgen-react.svg",
+      "description": "build status"
+    },
+    {
+      "href": "https://david-dm.org/hilkenan/sp-formgen-react",
+      "url": "https://david-dm.org/hilkenan/sp-formgen-react.svg",
+      "description": "dependency status"
+    },
+    {
+      "href": "https://codecov.io/gh/hilkenan/sp-formgen-react",
+      "url": "https://codecov.io/gh/hilkenan/sp-formgen-react/branch/master/graph/badge.svg",
+      "description": "code coverage"
+    },
+    {
+      "href": "https://npmjs.org/package/sp-formgen-react",
+      "url": "http://img.shields.io/npm/dm/sp-formgen-react.svg",
+      "description": "downloads"
+    }
+  ],
+  "devDependencies": {
+    "@types/jest": "^22.2.0",
+    "@types/node": "^9.4.7",
+    "@types/react": "^16.0.38",
+    "@types/react-dom": "^16.0.4",
+    "codecov": "^3.0.0",
+    "concurrently": "^3.5.1",
+    "sp-rest-proxy": "^2.5.6",
+    "typescript": "^2.7.2",
+    "webpack": "^3.11.0"
+  }
+}

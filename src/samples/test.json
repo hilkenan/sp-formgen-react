@@ -1,0 +1,102 @@
+{
+	 "$schema": "../schemas/sp-jfrom-schema.json",
+	 "id": "testform",
+	 "theme": "red",
+	 "title": "Test EN",
+	 "title_trans": {
+		 "de": "Test DE",
+		 "fr": "Test FR",
+         "it": "Test IT"
+	},
+	"sp_config": {
+		"lists": [{
+			"key": "onelevel",
+			"config": {
+				"view_name": "Alle Elemente",
+				"key_field": "ID",
+				"list_name": "sp-formgen-react-unittest",
+				"display_fields": [{
+					"internal_name": "Title"
+				},{
+					"internal_name": "FormTest1"
+				}]
+			}
+		},{
+			"key": "unittest",
+			"config": {
+				"display_format": "Test {texts[0]} :{texts[1]}",
+				"view_name": "Alle Elemente",
+				"key_field": "ID",
+				"list_name": "sp-formgen-react-unittest",
+				"display_fields": [{
+					"internal_name": "Title",
+					"display_format": "Das ist der Titel: {fieldValue}"
+				},{
+					"internal_name": "FormTest1"
+				}],
+				"child_lists": [{
+					"parent_field": "unittest",
+					"child_config": {
+						"key_field": "ID",
+						"display_fields": [{ "internal_name": "Title" }],
+						"list_name": "unittestl2"
+					},
+					"child_config_trans" : {
+						"properties": [{
+							"key": "DisplayFields[0].InternalName",
+							"object_trans": {
+								"en": "TitleEN"
+							}
+						}]		
+					}
+				}]
+			},
+			"config_trans": {
+				"properties": [{
+					"key": "DisplayFields[0].DisplayFormat",
+					"object_trans": {
+						"en": "This is the Titel: {fieldValue}"
+					}
+				}]
+			}
+		}]
+	},
+	"rows": [{
+		"columns": [{
+			"label_with": 4,
+			"controls": [{
+                "id": "choiceGroup",
+				"title": "ChoiceGroup",
+				"dataProviderConfigKeys": [ "onelevel" ],
+                "control_type": [ "ChoiceGroup" ],
+                "label_position": [ "Top"]
+			},{
+                "id": "comboBox",
+				"title": "ComboBox",
+				"dataProviderConfigKeys": [ "onelevel" ],
+                "control_type": [ "ComboBox" ],
+                "label_position": [ "Top"]
+			},{
+                "id": "dropdown",
+				"title": "DropDown",
+				"dataProviderConfigKeys": [ "onelevel" ],
+                "control_type": [ "DropDown" ],
+                "label_position": [ "Top"]
+			},{
+                "id": "cascading",
+				"title": "Cascader",
+				"dataProviderConfigKeys": [ "unittest" ],
+                "control_type": [ "CascadingDropDown" ],
+                "label_position": [ "Top"]
+			},{
+				"id": "pepople",
+				"control_type": [ "PeoplePicker" ],
+				"title": "PeoplePicker",
+				"config": {
+					"allowMultiple": true
+				},
+				"label_position": [ "Top" ]
+			}
+		]}
+	]}
+]}

@@ -1,0 +1,23 @@
+{
+	 "$schema": "http://json-schema.org/draft-04/schema#",
+	 "id": "http://did-c.com/schemas/translation-schema.json",
+	 "type": "object",
+	 "properties": {
+		 "de": {
+			 "type": "string"
+		},
+		 "fr": {
+			 "type": "string"
+		},
+		 "en": {
+			 "type": "string"
+		},
+		 "it": {
+			 "type": "string"
+		},
+		"es": {
+			 "type": "string"
+		}
+	},
+	"additionalProperties": false
+}

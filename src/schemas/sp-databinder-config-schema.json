@@ -1,0 +1,88 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "http://did-c.com/schemas/sp-databinder-config-schema.json",
+    "type": "object",
+    "properties": {
+        "base_url": {
+            "type": "string"
+       },
+       "lists": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+                "type": "object",
+                "properties": {
+                    "key": {
+                         "type": "string"
+                    },
+                    "config": {
+                        "$ref": "#/definitions/config"			
+                    },
+                    "config_trans": {
+                        "$ref": "./objecttranslation-schema.json"                        
+                    }
+                },
+                "required":[ "key", "config" ]
+            }
+        }
+    },
+    "additionalProperties": false,
+    "definitions": {
+        "config": {
+            "type": "object",
+            "properties": {
+                "child_lists": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "parent_field": {
+                                "type": "string"                        
+                            },
+                            "child_config" : {
+                                "$ref": "#/definitions/config"			
+                            },
+                            "child_config_trans": {
+                                "$ref": "./objecttranslation-schema.json"                        
+                            }                                    
+                        },
+                        "required":[ "parent_field", "child_config" ]
+                    }
+                },
+                "key_field": {
+                    "type": "string"                        
+                },
+                "web_url": {
+                    "type": "string"                        
+                },                            
+                "list_name": {
+                    "type": "string"                        
+                },
+                "view_name": {
+                    "type": "string"                        
+                },
+                "display_format": {
+                    "type": "string"                                
+                },                            
+                "display_fields": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "internal_name": {
+                                    "type": "string"
+                            },
+                            "display_format": {
+                                "type": "string"                                
+                            }
+                        },
+                        "required":[ "internal_name" ]
+                    }
+                }
+            },
+            "required":[ "key_field", "list_name", "display_fields" ]
+        }
+    }
+}

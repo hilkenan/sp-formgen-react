@@ -1,0 +1,266 @@
+{
+	 "$schema": "http://json-schema.org/draft-04/schema#",
+	 "id": "http://did-c.com/schemas/sp-jfrom-schema.json",
+	 "type": "object",
+	 "properties": {
+		 "$schema": {
+			 "type": "string"
+		},
+		"id": {
+			 "type": "string"
+		},
+		 "title": {
+			 "type": "string"
+		},
+		 "theme": {
+			 "type": "string"
+		},
+		 "title_trans": {
+			"$ref": "./translation-schema.json"
+		},
+		 "rows": {
+			 "$ref": "#/definitions/rows"
+		},
+		"label_with": {
+			"type": "integer",
+			"maximum": 12,
+			"minimum": 1
+		},
+		"sp_config": {
+			"$ref": "./sp-databinder-config-schema.json"			
+		}
+	},
+	 "required": [
+		"id", "rows"
+	],
+	 "additionalProperties": false,
+	 "definitions": {
+		"controls": {
+			"type": "array",
+			"minItems": 1,
+			"items": {
+				"$ref": "#/definitions/control"
+		   }
+		},
+	 	"rows": {
+			 "type": "array",
+			 "minItems": 1,
+			 "items": {
+				 "type": "object",
+				 "properties": {
+					 "columns": {
+						 "type": "array",
+						 "minItems": 1,
+						 "items": {
+							 "type": "object",
+							 "properties": {
+								 "label_with": {
+									 "type": "integer",
+									 "maximum": 12,
+									 "minimum": 1
+								 },
+								 "css_class": {
+									 "type": "string"
+								},
+								 "styles": {
+									 "type": "object"
+								},
+								 "controls": {
+									"$ref": "#/definitions/controls"
+								}
+							},
+							 "required": [
+								"controls"
+							],
+							 "additionalProperties": false
+						}
+					}
+				},
+				 "required": [
+					"columns"
+				],
+				 "additionalProperties": false
+			}
+		},
+		"control": {
+			"type": "object",
+			"properties": {
+				 "id": {
+					 "type": "string"
+				},
+				 "title": {
+					 "type": "string"
+				},
+				 "info": {
+					 "type": "string"
+				},
+				"info_action": {
+					"type": "object",
+					"properties": {
+						"link": {
+							"type":"string"
+						},
+						"text": {
+							"type":"string"
+						}
+					}
+				},
+				 "value": {
+					 "type": "object"
+				},
+				"css_class": {
+					"type": "string"
+				},
+				"styles": {
+					"type": "object"
+				},
+				"databinders": {
+					"type": "array",
+					"minItems": 1,
+					"items": {
+						"type": "string"
+					}
+				},
+				"dataProviderConfigKeys": {
+					"type": "array",
+					"minItems": 1,
+					"items": {
+						"type": "string"
+					}
+				},				
+				"read_only": {
+					 "type": "boolean",
+					 "default": false
+				},
+				"validators": {
+					"type": "array",
+					"minItems": 1,
+					"items": {
+						"type": "object",
+						"properties": {
+							"validator_type": {
+								"$ref": "#/definitions/validator_types"
+							},
+							"message": {
+								"type": "string"
+							},
+							"message_trans": {
+								"$ref": "./translation-schema.json"
+							},
+							"value": {
+								"type": "number"
+							},
+							"regex": {
+								"type": "string"
+							},	
+							"custom_type": {
+								"type": "string"
+							}
+						},
+						"required": [
+							"validator_type" ],
+			 			"additionalProperties": false
+					}
+				},
+				"label_position": {
+					"$ref": "#/definitions/label_positions"
+				},
+				"info_trans": {
+					 "$ref": "./translation-schema.json"
+				},								
+				 "title_trans": {
+					"$ref": "./translation-schema.json"
+				},
+				 "control_type": {
+					 "$ref": "#/definitions/control_types"
+				},
+				"customtype_name":{
+					"type": "string"
+				},
+				 "subrows": {
+					 "$ref": "#/definitions/rows"
+				},
+				"subcontrols": {
+					"$ref": "#/definitions/controls"
+				},
+				"subcontrol_label_with": {
+					"type": "integer",
+					"maximum": 12,
+					"minimum": 1
+				},
+				"config": {
+					 "type": "object"
+				},
+				"config_trans":{
+					"$ref": "./objecttranslation-schema.json"					
+				}
+			},
+			 "required": [
+				"id",
+				"control_type"
+			],
+			 "additionalProperties": false
+		},
+		"label_positions": {
+			 "type": "array",
+			 "items": {
+				 "type": "string",
+				 "enum": [
+					 "Top",
+					 "Left",
+					 "Right"
+				 ]
+			 }
+		},
+		"validator_types": {
+			 "type": "array",
+			 "items": {
+				 "type": "string",
+				 "enum": [
+					 "Required",
+					 "Integer",
+					 "Number",
+					 "MaxLength",
+					 "MinLength",
+					 "MinValue",
+					 "MaxValue",
+					 "Length",
+					 "Regex",
+					 "Custom"
+				 ]
+			 }
+		},
+		"control_types": {
+			 "type": "array",
+			 "items": {
+				 "type": "string",
+				 "enum": [
+					"DropDown",
+					"CascadingDropDown",
+					"ComboBox",
+					"ChoiceGroup",
+					"Checkbox",
+					"Textbox",
+					"RichtTex",
+					"MaskedTextbox",
+					"DatePicker",
+					"Time",
+					"InfoText",
+					"Rating",
+					"Slider",
+					"SpinButton",
+					"Toggle",
+					"TabContainer",
+					"Tab",
+					"Custom",
+					"SubmitButton",
+    				"CancelButton",
+					"CustomButton",
+					"DateTimePicker",
+					"TimePicker",
+					"PeoplePicker"
+				]
+			}
+		}
+	}
+}
