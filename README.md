@@ -4,6 +4,7 @@
 Also my other project formgen-react. This project is only the injection for SharePoint
 for the formgen-react project. See <a href="https://github.com/hilkenan/formgen-react/wiki">formgen-react documentation<a>.
 
+[![Join the chat at https://gitter.im/formgen-react/Lobby](https://badges.gitter.im/formgen-react/Lobby.svg)](https://gitter.im/formgen-react/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![npm version](https://badge.fury.io/js/sp-formgen-react.svg)](http://badge.fury.io/js/sp-formgen-react)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Build Status](https://secure.travis-ci.org/hilkenan/sp-formgen-react.svg)](https://travis-ci.org/hilkenan/sp-formgen-react)
