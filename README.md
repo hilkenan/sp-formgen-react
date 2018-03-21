@@ -29,7 +29,7 @@ npm install # sp-formgen-react --save
 
 ## Documentation
 
-<a href="https://github.com/hilkenan/formgen-react/wiki">Full documentation from formgen-react<a>
+<a href="https://github.com/hilkenan/formgen-react/wiki">Full documentation from formgen-react<a><br>
 <a href="https://github.com/hilkenan/sp-formgen-react/wiki">Full documentation from sp-formgen-react<a>
 
 ## Configuration
