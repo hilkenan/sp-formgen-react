@@ -1,15 +1,21 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var gd_sprest_1 = require("gd-sprest");
+/**
+ * Helper class to acces sharepoint.
+ */
 var SPHelper = /** @class */ (function () {
     /**
-     * Takes the target Info as parmeter.s
+     * Takes the target Info
+     * @param targetInfo Target to use (local or current context)
      */
     function SPHelper(targetInfo) {
         this.targetInfo = targetInfo;
     }
     /**
      * Get the correct List View XML for the configured list settings.
+     * @param formData the Current Form Data object
+     * @param config The Config for the List to get the view from.
      */
     SPHelper.prototype.getListViewXml = function (formData, config) {
         var webUrl = formData.SPConfig.BaseUrl + config.WebUrl;
@@ -25,6 +31,7 @@ var SPHelper = /** @class */ (function () {
     };
     /**
      * Depending on environment att the target url.
+     * @param webUrl The Url relative to the base url
      */
     SPHelper.prototype.getCorrectWebUrl = function (webUrl) {
         if (this.targetInfo.url && webUrl)
@@ -36,6 +43,8 @@ var SPHelper = /** @class */ (function () {
     };
     /**
      * Get the Defauld ListView cached from.
+     * @param webUrl The Url relative to the base url
+     * @param listName The Dipslay name of the list to use.
      */
     SPHelper.prototype.getCamlQueryFromDevaultView = function (webUrl, listName) {
         if (this.camlQueries == undefined)
@@ -55,11 +64,19 @@ var SPHelper = /** @class */ (function () {
         });
         return this.camlQueries.find(function (v) { return v.ViewName == key; }).Query;
     };
+    /**
+     * Replace the all occurencies from search in the target with replacments
+     * @param target the origin string
+     * @param search the search string
+     * @param replacement the replacment string
+     */
     SPHelper.prototype.replaceAll = function (target, search, replacement) {
         return target.split(search).join(replacement);
     };
     /**
      * Collect the text for the display
+     * @param item The ListItem Result to collect texts from.
+     * @param config The Configuration for this list.
      */
     SPHelper.prototype.getDisplayTextFromConfig = function (item, config) {
         var texts = [];
@@ -84,6 +101,9 @@ var SPHelper = /** @class */ (function () {
     };
     /**
      * Get the ListView cached from the given view name.
+     * @param webUrl The Url relative to the base url
+     * @param viewName The view name to get the caml from.
+     * @param listName The Name of the list.
      */
     SPHelper.prototype.getCamlQueryFromView = function (webUrl, viewName, listName) {
         if (this.camlQueries == undefined)

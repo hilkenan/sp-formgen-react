@@ -13,6 +13,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var FormInputs_1 = require("formgen-react/dist/form/FormInputs");
 var Enums_1 = require("formgen-react/dist/Enums");
 var FormSPPeoplePicker_1 = require("../inputs/peoplePicker/FormSPPeoplePicker");
+/**
+ * Replace the People Picker with the Sharepoint people picker
+ */
 var SPFormInputs = /** @class */ (function (_super) {
     __extends(SPFormInputs, _super);
     function SPFormInputs() {

@@ -7,6 +7,9 @@ import { ITargetInfo } from 'gd-sprest/build/utils/types';
 export declare const typesForInjectSP: {
     targetInfo: string;
 };
+/**
+* The Provider Service to access SharePoint Lists
+*/
 export declare class SPDataProviderService implements IDataProviderService {
     private targetInfo;
     private spHelper;
@@ -19,7 +22,7 @@ export declare class SPDataProviderService implements IDataProviderService {
      */
     formData?: JSPFormData;
     /**
-     * Retrieve data from the store
+     * Retrieve data from the sharepoint
      * @param configKey Config Key from the control. This will use the by the provider to finde the correct configuration for this request
      * @param formData The Current complete Form Model. Here the config should be found.
      * @param controlConfig The control that calls the request.

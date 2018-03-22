@@ -1,5 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+/**
+* Target that use the current Context
+*/
 var SharePointTargetOnline = /** @class */ (function () {
     function SharePointTargetOnline() {
     }
@@ -7,6 +10,9 @@ var SharePointTargetOnline = /** @class */ (function () {
     return SharePointTargetOnline;
 }());
 exports.SharePointTargetOnline = SharePointTargetOnline;
+/**
+* Target that use http://localhost:4323
+*/
 var SharePointTargetLocal = /** @class */ (function () {
     function SharePointTargetLocal() {
     }

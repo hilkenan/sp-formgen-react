@@ -21,6 +21,9 @@ var Helper_1 = require("formgen-react/dist/Helper");
  * The Types to use for injection
  */
 exports.typesForInjectSP = { targetInfo: "targetInfo" };
+/**
+* The Provider Service to access SharePoint Lists
+*/
 var SPDataProviderService = /** @class */ (function () {
     /**
      * Takes the target Info as parmeter.s
@@ -30,7 +33,7 @@ var SPDataProviderService = /** @class */ (function () {
         this.spHelper = new SPHelper_1.SPHelper(targetInfo);
     }
     /**
-     * Retrieve data from the store
+     * Retrieve data from the sharepoint
      * @param configKey Config Key from the control. This will use the by the provider to finde the correct configuration for this request
      * @param formData The Current complete Form Model. Here the config should be found.
      * @param controlConfig The control that calls the request.
