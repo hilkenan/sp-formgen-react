@@ -25,7 +25,7 @@ for the formgen-react project. See <a href="https://github.com/hilkenan/formgen-
 
 The package can be installed via NPM:
 ```
-npm install # sp-formgen-react --save
+npm install sp-formgen-react --save
 ```
 
 ## Documentation
@@ -45,7 +45,7 @@ export class Example extends React.Component {
 render() {
   return (
   <SPForm 
-    useLocalHost={true}
+    useLocalHost={ false }
     onCancelForm={ () => console.log("cancel click") }
     onSubmitForm={ (formData:any) => console.log("submit click: " + JSON.stringify(formData)) }
     jsonFormData={ jsonForm }  />
