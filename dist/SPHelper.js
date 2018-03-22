@@ -1,32 +1,35 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var SharePointTarget_1 = require("./SharePointTarget");
 var gd_sprest_1 = require("gd-sprest");
 var SPHelper = /** @class */ (function () {
-    function SPHelper() {
+    /**
+     * Takes the target Info as parmeter.s
+     */
+    function SPHelper(targetInfo) {
+        this.targetInfo = targetInfo;
     }
     /**
      * Get the correct List View XML for the configured list settings.
      */
-    SPHelper.getListViewXml = function (formData, config) {
+    SPHelper.prototype.getListViewXml = function (formData, config) {
         var webUrl = formData.SPConfig.BaseUrl + config.WebUrl;
-        webUrl = SPHelper.getCorrectWebUrl(webUrl);
+        webUrl = this.getCorrectWebUrl(webUrl);
         var listView;
         if (!config.ViewName) {
-            listView = SPHelper.getCamlQueryFromDevaultView(webUrl, config.ListName);
+            listView = this.getCamlQueryFromDevaultView(webUrl, config.ListName);
         }
         else {
-            listView = SPHelper.getCamlQueryFromView(webUrl, config.ViewName, config.ListName);
+            listView = this.getCamlQueryFromView(webUrl, config.ViewName, config.ListName);
         }
         return listView;
     };
     /**
      * Depending on environment att the target url.
      */
-    SPHelper.getCorrectWebUrl = function (webUrl) {
-        if (SharePointTarget_1.SharePointTarget.url && webUrl)
-            return SharePointTarget_1.SharePointTarget.url + webUrl;
-        else if (!SharePointTarget_1.SharePointTarget.url && !webUrl)
+    SPHelper.prototype.getCorrectWebUrl = function (webUrl) {
+        if (this.targetInfo.url && webUrl)
+            return this.targetInfo.url + webUrl;
+        else if (!this.targetInfo.url && !webUrl)
             return undefined;
         else
             return webUrl;
@@ -34,31 +37,31 @@ var SPHelper = /** @class */ (function () {
     /**
      * Get the Defauld ListView cached from.
      */
-    SPHelper.getCamlQueryFromDevaultView = function (webUrl, listName) {
-        if (SPHelper.camlQueries == undefined)
-            SPHelper.camlQueries = [];
+    SPHelper.prototype.getCamlQueryFromDevaultView = function (webUrl, listName) {
+        if (this.camlQueries == undefined)
+            this.camlQueries = [];
         var key = listName + ":defaultView";
-        var item = SPHelper.camlQueries.find(function (v) { return v.ViewName == key; });
+        var item = this.camlQueries.find(function (v) { return v.ViewName == key; });
         if (item)
             return item.Query;
-        var view = gd_sprest_1.$REST.Web(webUrl, SharePointTarget_1.SharePointTarget)
+        var view = gd_sprest_1.$REST.Web(webUrl, this.targetInfo)
             .Lists()
             .getByTitle(listName)
             .DefaultView()
             .executeAndWait();
-        SPHelper.camlQueries.push({
+        this.camlQueries.push({
             ViewName: key,
             Query: view.ListViewXml
         });
-        return SPHelper.camlQueries.find(function (v) { return v.ViewName == key; }).Query;
+        return this.camlQueries.find(function (v) { return v.ViewName == key; }).Query;
     };
-    SPHelper.replaceAll = function (target, search, replacement) {
+    SPHelper.prototype.replaceAll = function (target, search, replacement) {
         return target.split(search).join(replacement);
     };
     /**
      * Collect the text for the display
      */
-    SPHelper.getDisplayTextFromConfig = function (item, config) {
+    SPHelper.prototype.getDisplayTextFromConfig = function (item, config) {
         var texts = [];
         for (var _i = 0, _a = config.DisplayFields; _i < _a.length; _i++) {
             var fieldName = _a[_i];
@@ -82,24 +85,24 @@ var SPHelper = /** @class */ (function () {
     /**
      * Get the ListView cached from the given view name.
      */
-    SPHelper.getCamlQueryFromView = function (webUrl, viewName, listName) {
-        if (SPHelper.camlQueries == undefined)
-            SPHelper.camlQueries = [];
+    SPHelper.prototype.getCamlQueryFromView = function (webUrl, viewName, listName) {
+        if (this.camlQueries == undefined)
+            this.camlQueries = [];
         var key = listName + ":" + viewName;
-        var item = SPHelper.camlQueries.find(function (v) { return v.ViewName == key; });
+        var item = this.camlQueries.find(function (v) { return v.ViewName == key; });
         if (item)
             return item.Query;
-        var view = gd_sprest_1.$REST.Web(webUrl, SharePointTarget_1.SharePointTarget)
+        var view = gd_sprest_1.$REST.Web(webUrl, this.targetInfo)
             .Lists()
             .getByTitle(listName)
             .Views()
             .getByTitle(viewName)
             .executeAndWait();
-        SPHelper.camlQueries.push({
+        this.camlQueries.push({
             ViewName: key,
             Query: view.ListViewXml
         });
-        return SPHelper.camlQueries.find(function (v) { return v.ViewName == key; }).Query;
+        return this.camlQueries.find(function (v) { return v.ViewName == key; }).Query;
     };
     return SPHelper;
 }());

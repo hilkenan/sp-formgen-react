@@ -5,15 +5,29 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 var inversify_1 = require("inversify");
 var formgen_react_1 = require("formgen-react");
 var gd_sprest_1 = require("gd-sprest");
-var SharePointTarget_1 = require("../SharePointTarget");
 var SPHelper_1 = require("../SPHelper");
 var Helper_1 = require("formgen-react/dist/Helper");
+/**
+ * The Types to use for injection
+ */
+exports.typesForInjectSP = { targetInfo: "targetInfo" };
 var SPDataProviderService = /** @class */ (function () {
-    function SPDataProviderService() {
+    /**
+     * Takes the target Info as parmeter.s
+     */
+    function SPDataProviderService(targetInfo) {
+        this.targetInfo = targetInfo;
+        this.spHelper = new SPHelper_1.SPHelper(targetInfo);
     }
     /**
      * Retrieve data from the store
@@ -31,9 +45,9 @@ var SPDataProviderService = /** @class */ (function () {
             var spConfig = Helper_1.Helper.getTranslatedObject(config.ListConfig, config.ConfigTranslation);
             var webUrl = spConfig.BaseUrl ? spConfig.BaseUrl : "" +
                 config.ListConfig.WebUrl ? config.ListConfig.WebUrl : "";
-            webUrl = SPHelper_1.SPHelper.getCorrectWebUrl(webUrl);
-            var listView = SPHelper_1.SPHelper.getListViewXml(_this.formData, config.ListConfig);
-            gd_sprest_1.$REST.Web(webUrl, SharePointTarget_1.SharePointTarget)
+            webUrl = _this.spHelper.getCorrectWebUrl(webUrl);
+            var listView = _this.spHelper.getListViewXml(_this.formData, config.ListConfig);
+            gd_sprest_1.$REST.Web(webUrl, _this.targetInfo)
                 .Lists()
                 .getByTitle(config.ListConfig.ListName)
                 .getItems(listView).execute(function (items) {
@@ -46,7 +60,7 @@ var SPDataProviderService = /** @class */ (function () {
                             var item = _a[_i];
                             dropDonwEntries.push({
                                 key: item[config.ListConfig.KeyField],
-                                text: SPHelper_1.SPHelper.getDisplayTextFromConfig(item, config.ListConfig)
+                                text: _this.spHelper.getDisplayTextFromConfig(item, config.ListConfig)
                             });
                         }
                         resolve(dropDonwEntries);
@@ -73,7 +87,7 @@ var SPDataProviderService = /** @class */ (function () {
         var key = item[listConfig.KeyField];
         var cItem = {
             value: key.toString(),
-            label: SPHelper_1.SPHelper.getDisplayTextFromConfig(item, listConfig),
+            label: this.spHelper.getDisplayTextFromConfig(item, listConfig),
             disabled: item[listConfig.DisabledField] ?
                 item[listConfig.DisabledField] : undefined
         };
@@ -82,7 +96,7 @@ var SPDataProviderService = /** @class */ (function () {
             for (var _i = 0, _a = listConfig.ChildLists; _i < _a.length; _i++) {
                 var childConfig = _a[_i];
                 var config = Helper_1.Helper.getTranslatedObject(childConfig.Config, childConfig.ConfigTranslation);
-                var items = gd_sprest_1.$REST.Web(webUrl, SharePointTarget_1.SharePointTarget)
+                var items = gd_sprest_1.$REST.Web(webUrl, this.targetInfo)
                     .Lists()
                     .getByTitle(config.ListName)
                     .Items()
@@ -107,7 +121,9 @@ var SPDataProviderService = /** @class */ (function () {
         return cItem;
     };
     SPDataProviderService = __decorate([
-        inversify_1.injectable()
+        inversify_1.injectable(),
+        __param(0, inversify_1.inject(exports.typesForInjectSP.targetInfo)),
+        __metadata("design:paramtypes", [Object])
     ], SPDataProviderService);
     return SPDataProviderService;
 }());

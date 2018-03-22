@@ -1,26 +1,34 @@
 import { ViewItem } from "./objects/ViewItem";
-import { SharePointTarget } from "./SharePointTarget";
 import { $REST } from "gd-sprest";
 import { JSPFormData } from "./objects/JSPFormData";
 import { IListItemResult } from "gd-sprest/build/mapper/types";
 import { ListConfig } from "./objects/ListConfig";
+import { ITargetInfo } from "gd-sprest/build/utils/types";
 
 export class SPHelper {
-    private static camlQueries:ViewItem[];
+    private targetInfo: ITargetInfo;
+    private camlQueries:ViewItem[];
+    
+    /**
+     * Takes the target Info as parmeter.s
+     */
+    public constructor(targetInfo: ITargetInfo) {
+        this.targetInfo = targetInfo;
+    }
 
     /**
      * Get the correct List View XML for the configured list settings.
      */                 
-    static getListViewXml(formData:JSPFormData, config:ListConfig):string {
+    public getListViewXml(formData:JSPFormData, config:ListConfig):string {
         let webUrl = formData.SPConfig.BaseUrl + config.WebUrl;
-        webUrl = SPHelper.getCorrectWebUrl(webUrl);
+        webUrl = this.getCorrectWebUrl(webUrl);
         
         let listView;
         if (!config.ViewName) {
-            listView = SPHelper.getCamlQueryFromDevaultView(webUrl, config.ListName);
+            listView = this.getCamlQueryFromDevaultView(webUrl, config.ListName);
         }
         else {
-            listView = SPHelper.getCamlQueryFromView(webUrl, config.ViewName, config.ListName);                
+            listView = this.getCamlQueryFromView(webUrl, config.ViewName, config.ListName);                
         }        
         return listView;
     }
@@ -28,10 +36,10 @@ export class SPHelper {
     /**
      * Depending on environment att the target url.
      */                 
-    static getCorrectWebUrl(webUrl:string): string {
-        if (SharePointTarget.url && webUrl)
-            return SharePointTarget.url + webUrl;
-        else if (!SharePointTarget.url && !webUrl)
+    public getCorrectWebUrl(webUrl:string): string {
+        if (this.targetInfo.url && webUrl)
+            return this.targetInfo.url + webUrl;
+        else if (!this.targetInfo.url && !webUrl)
             return undefined;
         else
             return webUrl;
@@ -40,34 +48,34 @@ export class SPHelper {
     /**
      * Get the Defauld ListView cached from.
      */                 
-    static getCamlQueryFromDevaultView(webUrl: string, listName:string): string {
-        if (SPHelper.camlQueries == undefined)
-            SPHelper.camlQueries = [];
+    public getCamlQueryFromDevaultView(webUrl: string, listName:string): string {
+        if (this.camlQueries == undefined)
+            this.camlQueries = [];
 
         let key = listName + ":defaultView";
-        let item = SPHelper.camlQueries.find(v => v.ViewName == key);
+        let item = this.camlQueries.find(v => v.ViewName == key);
         if (item) return item.Query;
         
-        let view = $REST.Web(webUrl, SharePointTarget)
+        let view = $REST.Web(webUrl, this.targetInfo)
             .Lists()
             .getByTitle(listName)
             .DefaultView()
             .executeAndWait();
-        SPHelper.camlQueries.push({
+        this.camlQueries.push({
             ViewName: key,
             Query: view.ListViewXml
         })
-        return SPHelper.camlQueries.find(v => v.ViewName == key).Query;
+        return this.camlQueries.find(v => v.ViewName == key).Query;
     }
 
-    static replaceAll(target:string, search:string, replacement: string) {
+    private replaceAll(target:string, search:string, replacement: string) {
         return target.split(search).join(replacement);
     }
 
     /**
      * Collect the text for the display
      */                 
-    static getDisplayTextFromConfig(item:IListItemResult, config:ListConfig) {
+    public getDisplayTextFromConfig(item:IListItemResult, config:ListConfig) {
         let texts:string[] = [];
         for(let fieldName of config.DisplayFields) {
             let fieldValue = item[fieldName.InternalName];
@@ -91,24 +99,24 @@ export class SPHelper {
     /**
      * Get the ListView cached from the given view name.
      */                 
-    static getCamlQueryFromView(webUrl: string, viewName:string, listName:string): string {
-        if (SPHelper.camlQueries == undefined)
-            SPHelper.camlQueries = [];
+    public getCamlQueryFromView(webUrl: string, viewName:string, listName:string): string {
+        if (this.camlQueries == undefined)
+            this.camlQueries = [];
 
         let key = listName + ":" + viewName;
-        let item = SPHelper.camlQueries.find(v => v.ViewName == key);
+        let item = this.camlQueries.find(v => v.ViewName == key);
         if (item) return item.Query;
         
-        let view = $REST.Web(webUrl, SharePointTarget)
+        let view = $REST.Web(webUrl, this.targetInfo)
             .Lists()
             .getByTitle(listName)
             .Views()
             .getByTitle(viewName)
             .executeAndWait();
-        SPHelper.camlQueries.push({
+        this.camlQueries.push({
             ViewName: key,
             Query: view.ListViewXml
         });
-        return SPHelper.camlQueries.find(v => v.ViewName == key).Query;
+        return this.camlQueries.find(v => v.ViewName == key).Query;
     }       
 }

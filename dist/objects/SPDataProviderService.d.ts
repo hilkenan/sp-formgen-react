@@ -1,6 +1,19 @@
 import { Control, IDataProviderService } from 'formgen-react';
 import { JSPFormData } from './JSPFormData';
+import { ITargetInfo } from 'gd-sprest/build/utils/types';
+/**
+ * The Types to use for injection
+ */
+export declare const typesForInjectSP: {
+    targetInfo: string;
+};
 export declare class SPDataProviderService implements IDataProviderService {
+    private targetInfo;
+    private spHelper;
+    /**
+     * Takes the target Info as parmeter.s
+     */
+    constructor(targetInfo: ITargetInfo);
     /**
      * The SharePoint Form Data
      */

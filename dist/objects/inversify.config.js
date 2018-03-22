@@ -13,18 +13,24 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var inversify_1 = require("inversify");
 var SPDataProviderService_1 = require("./SPDataProviderService");
 var formgen_react_1 = require("formgen-react");
+var SharePointTarget_1 = require("./SharePointTarget");
 /**
 * Inversion Of Control class container
 */
 var SPContainer = /** @class */ (function (_super) {
     __extends(SPContainer, _super);
-    function SPContainer() {
+    function SPContainer(useLocalHost) {
         var _this = _super.call(this) || this;
+        if (useLocalHost)
+            _this.targetInfo = SharePointTarget_1.SharePointTargetLocal;
+        else
+            _this.targetInfo = SharePointTarget_1.SharePointTargetOnline;
         _this.declareDependencies();
         return _this;
     }
     SPContainer.prototype.declareDependencies = function () {
         this.bind(formgen_react_1.typesForInject.IDataProviderService).to(SPDataProviderService_1.SPDataProviderService);
+        this.bind(SPDataProviderService_1.typesForInjectSP.targetInfo).toConstantValue(this.targetInfo);
     };
     return SPContainer;
 }(inversify_1.Container));

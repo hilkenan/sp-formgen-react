@@ -1,17 +1,33 @@
 import { IDropdownOption } from 'office-ui-fabric-react';
-import { injectable } from 'inversify';
+import { injectable, inject } from 'inversify';
 import { Control, ControlTypes, IDataProviderService } from 'formgen-react';
 import { JSPFormData } from './JSPFormData';
 import { $REST } from 'gd-sprest';
-import { SharePointTarget } from '../SharePointTarget';
 import { SPHelper } from '../SPHelper';
 import { IListItemResult, IListItemQueryResult } from 'gd-sprest/build/mapper/types';
 import { ListConfig } from './ListConfig';
 import { SPConfig } from './SPConfig';
 import { Helper } from 'formgen-react/dist/Helper';
+import { ITargetInfo } from 'gd-sprest/build/utils/types';
   
+/**
+ * The Types to use for injection
+ */
+export const typesForInjectSP = { targetInfo: "targetInfo" };
+
 @injectable()
 export class SPDataProviderService implements IDataProviderService {
+    private targetInfo: ITargetInfo;
+    private spHelper: SPHelper;
+
+    /**
+     * Takes the target Info as parmeter.s
+     */
+    public constructor(@inject(typesForInjectSP.targetInfo) targetInfo: ITargetInfo) {
+        this.targetInfo = targetInfo;
+        this.spHelper = new SPHelper(targetInfo)
+    }
+
     /**
      * The SharePoint Form Data
      */
@@ -32,10 +48,10 @@ export class SPDataProviderService implements IDataProviderService {
             let spConfig:SPConfig = Helper.getTranslatedObject(config.ListConfig, config.ConfigTranslation);
             let webUrl = spConfig.BaseUrl ? spConfig.BaseUrl : "" + 
                 config.ListConfig.WebUrl ? config.ListConfig.WebUrl : "";
-            webUrl = SPHelper.getCorrectWebUrl(webUrl);
-            let listView = SPHelper.getListViewXml(this.formData, config.ListConfig);
+            webUrl = this.spHelper.getCorrectWebUrl(webUrl);
+            let listView = this.spHelper.getListViewXml(this.formData, config.ListConfig);
 
-            $REST.Web(webUrl, SharePointTarget)
+            $REST.Web(webUrl, this.targetInfo)
             .Lists()
             .getByTitle(config.ListConfig.ListName)
             .getItems(listView).execute(items => {
@@ -47,7 +63,7 @@ export class SPDataProviderService implements IDataProviderService {
                         for(let item of items.results) {
                             dropDonwEntries.push({
                                 key: item[config.ListConfig.KeyField],
-                                text: SPHelper.getDisplayTextFromConfig(item, config.ListConfig)
+                                text: this.spHelper.getDisplayTextFromConfig(item, config.ListConfig)
                             })
                         }
                         resolve(dropDonwEntries);
@@ -74,7 +90,7 @@ export class SPDataProviderService implements IDataProviderService {
         let key:string = item[listConfig.KeyField];
         let cItem = {
             value: key.toString(),
-            label: SPHelper.getDisplayTextFromConfig(item as IListItemResult, listConfig),
+            label: this.spHelper.getDisplayTextFromConfig(item as IListItemResult, listConfig),
             disabled: item[listConfig.DisabledField] ? 
                  item[listConfig.DisabledField] as boolean : undefined 
         }
@@ -83,7 +99,7 @@ export class SPDataProviderService implements IDataProviderService {
             for (let childConfig of listConfig.ChildLists) {
                 let config:ListConfig = Helper.getTranslatedObject(childConfig.Config, childConfig.ConfigTranslation);
                 
-                let items = $REST.Web(webUrl, SharePointTarget)
+                let items = $REST.Web(webUrl, this.targetInfo)
                 .Lists()
                 .getByTitle(config.ListName)
                 .Items()
