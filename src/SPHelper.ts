@@ -5,12 +5,16 @@ import { IListItemResult } from "gd-sprest/build/mapper/types";
 import { ListConfig } from "./objects/ListConfig";
 import { ITargetInfo } from "gd-sprest/build/utils/types";
 
+/**
+ * Helper class to acces sharepoint.
+ */
 export class SPHelper {
     private targetInfo: ITargetInfo;
     private camlQueries:ViewItem[];
     
     /**
-     * Takes the target Info as parmeter.s
+     * Takes the target Info
+     * @param targetInfo Target to use (local or current context)
      */
     public constructor(targetInfo: ITargetInfo) {
         this.targetInfo = targetInfo;
@@ -18,6 +22,8 @@ export class SPHelper {
 
     /**
      * Get the correct List View XML for the configured list settings.
+     * @param formData the Current Form Data object
+     * @param config The Config for the List to get the view from.
      */                 
     public getListViewXml(formData:JSPFormData, config:ListConfig):string {
         let webUrl = formData.SPConfig.BaseUrl + config.WebUrl;
@@ -35,6 +41,7 @@ export class SPHelper {
 
     /**
      * Depending on environment att the target url.
+     * @param webUrl The Url relative to the base url
      */                 
     public getCorrectWebUrl(webUrl:string): string {
         if (this.targetInfo.url && webUrl)
@@ -47,6 +54,8 @@ export class SPHelper {
 
     /**
      * Get the Defauld ListView cached from.
+     * @param webUrl The Url relative to the base url
+     * @param listName The Dipslay name of the list to use.
      */                 
     public getCamlQueryFromDevaultView(webUrl: string, listName:string): string {
         if (this.camlQueries == undefined)
@@ -68,12 +77,20 @@ export class SPHelper {
         return this.camlQueries.find(v => v.ViewName == key).Query;
     }
 
+    /**
+     * Replace the all occurencies from search in the target with replacments
+     * @param target the origin string
+     * @param search the search string
+     * @param replacement the replacment string
+     */                 
     private replaceAll(target:string, search:string, replacement: string) {
         return target.split(search).join(replacement);
     }
 
     /**
      * Collect the text for the display
+     * @param item The ListItem Result to collect texts from.
+     * @param config The Configuration for this list.
      */                 
     public getDisplayTextFromConfig(item:IListItemResult, config:ListConfig) {
         let texts:string[] = [];
@@ -98,6 +115,9 @@ export class SPHelper {
     
     /**
      * Get the ListView cached from the given view name.
+     * @param webUrl The Url relative to the base url
+     * @param viewName The view name to get the caml from.
+     * @param listName The Name of the list.
      */                 
     public getCamlQueryFromView(webUrl: string, viewName:string, listName:string): string {
         if (this.camlQueries == undefined)

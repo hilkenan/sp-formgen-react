@@ -1,7 +1,7 @@
 {
   "author": "hilkenan",
   "name": "sp-formgen-react",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Formula generator for SharePoint with JSON for react. UI Fabric controls are used for rendering",
   "license": "MIT",
   "homepage": "https://github.com/hilkenan/sp-formgen-react",

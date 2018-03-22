@@ -7,6 +7,7 @@ import { SPConfig } from "src/objects/SPConfig";
  */
 @JsonObject
 export class JSPFormData extends JFormData {
+    
     @JsonProperty("sp_config", SPConfig, true)
     SPConfig: SPConfig = undefined;     
 }
