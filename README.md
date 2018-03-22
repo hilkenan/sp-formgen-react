@@ -115,7 +115,7 @@ Remark, that the used SharePoint Poeple Picker nor correctly runs with the proxy
 When you publish the solution to sharepoint you has to set the property useLocalHost from the SPForm to false:
 ```ts
   <SPForm 
-    useLocalHost={true} />
+    useLocalHost={ false } />
 ```
 otherwise it will still search sharepoint at your localhost proxy. 
 
