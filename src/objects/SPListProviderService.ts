@@ -1,5 +1,4 @@
 import { IDropdownOption } from 'office-ui-fabric-react';
-import { injectable, inject } from 'inversify';
 import { Control, ControlTypes, IDataProviderService } from 'formgen-react';
 import { JSPFormData } from './JSPFormData';
 import { $REST } from 'gd-sprest';
@@ -9,17 +8,11 @@ import { ListConfig } from './ListConfig';
 import { SPConfig } from './SPConfig';
 import { Helper } from 'formgen-react/dist/Helper';
 import { ITargetInfo } from 'gd-sprest/build/utils/types';
-import { IDataProviderCollection } from 'formgen-react/dist/formBaseInput/FormBaseInput.types';
-  
-/**
- * The Types to use for injection
- */
-export const typesForInjectSP = { targetInfo: "targetInfo" };
 
 /**
 * The Provider Service to access SharePoint Lists
 */  
-export class SPDataProviderService implements IDataProviderService {
+export class SPListProviderService implements IDataProviderService {
     private targetInfo: ITargetInfo;
     private spHelper: SPHelper;
 
@@ -37,7 +30,7 @@ export class SPDataProviderService implements IDataProviderService {
      * The SharePoint Form Data
      */
     formData?: JSPFormData;
-    
+
     /** 
      * Retrieve data from the sharepoint 
      * @param configKey Config Key from the control. This will use the by the provider to finde the correct configuration for this request
@@ -85,6 +78,33 @@ export class SPDataProviderService implements IDataProviderService {
         });
     }
 
+    /**
+     * Retrieve list data from the store filtered and optional limited with count of result items
+     * @param configKey Config Key from the control. This will use the by the provider to finde the correct configuration for this request
+     * @param controlConfig The control that calls the request.
+     * @param lang The current language to use.
+     * @param filter The filterstring to use
+     * @param limitResults Count of items to return at max.
+     */
+    retrieveFilteredListData(configKey: string, controlConfig: Control, lang: string, filter: string, limitResults?: number): Promise<any[]> {
+        return null;
+    }
+
+    /**
+     * Retrieve singel data from the store based on an key. Variations of Key format:
+     * MyUserDataProvider.firstName --> Get for the current control from the "MyUserDataProvider (= providerServiceKey) the Information "firstName"
+     * MyUserDataProvider.manager.firstName --> Get for the current control from the element manager the firstName. This type of object for this control has to support sub elements.
+     * MyUserDataProvider.[thisForm.manager].firstName --> Get for control "thisForm.manager" the element "firstName"
+     * MyUserDataProvider.[thisForm.anyUser].manager.firstName --> Get for control "thisForm.anyUser" from the element manager the firstName. This type of object for this control has to support sub elements.
+     * @param configKey Config Key from the control. This will use the by the provider to finde the correct configuration for this request
+     * @param senderControl The control config that sends the request.
+     * @param receiverControl The control config that receives the value.
+     * @param lang The current language to use.
+     */
+    retrieveSingleData(configKey: string, senderControl: Control, receiverControl: Control, lang: string): Promise<any> {
+        return null;
+    }
+    
     /** 
      * Get the Cacading Item with all the Childs and subchilds 
      * @param webUrl  Root Web Url for the Lists.
@@ -127,17 +147,4 @@ export class SPDataProviderService implements IDataProviderService {
         }
         return cItem;
     }
-}
-
-
-@injectable()
-export class SPDataProviderServiceCollection implements IDataProviderCollection {
-    /**
-     * Takes the target Info as parmeter.s
-     */
-    public constructor(@inject(typesForInjectSP.targetInfo) targetInfo: ITargetInfo) {
-        let spListProvider = new SPDataProviderService(targetInfo);
-        this.providers.push(spListProvider);
-    }
-    providers:IDataProviderService[] = [];
 }
