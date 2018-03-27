@@ -10,5 +10,8 @@ export class DisplayField {
 
     @JsonProperty("display_format", String, true) 
     DisplayFormat: string = "";
+
+    @JsonProperty("use_language_variants", Boolean, true) 
+    UseLanguageVariants: Boolean = false;
 }
 

@@ -29,5 +29,5 @@ export class ListConfig {
     DisplayFields: DisplayField[] = [];
 
     @JsonProperty("child_lists", [ChildConfig], true)
-    ChildLists: ChildConfig[] = [];    
+    ChildLists: ChildConfig[] = [];        
 }

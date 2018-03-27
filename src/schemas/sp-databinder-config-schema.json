@@ -76,6 +76,9 @@
                             },
                             "display_format": {
                                 "type": "string"                                
+                            },
+                            "use_language_variants": {
+                                "type": "boolean"
                             }
                         },
                         "required":[ "internal_name" ]

@@ -3,6 +3,7 @@ import { IDataProviderCollection } from "formgen-react/dist/formBaseInput/FormBa
 import { SPListProviderService } from "./objects/SPListProviderService";
 import { IDataProviderService } from "formgen-react";
 import { ITargetInfo } from "gd-sprest/build/utils/types";
+import { SPUserProfileProviderService } from "./objects/SPUserProfileProviderService";
   
 /**
  * The Types to use for injection
@@ -22,7 +23,9 @@ export class SPDataProviderServiceCollection implements IDataProviderCollection 
      */
     public constructor(@inject(typesForInjectSP.targetInfo) targetInfo: ITargetInfo) {
         let spListProvider = new SPListProviderService(targetInfo);
+        let spUserProfileProvider = new SPUserProfileProviderService(targetInfo);
         this.providers.push(spListProvider);
+        this.providers.push(spUserProfileProvider);        
     }
     providers:IDataProviderService[] = [];
 }

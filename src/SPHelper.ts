@@ -91,13 +91,21 @@ export class SPHelper {
      * Collect the text for the display
      * @param item The ListItem Result to collect texts from.
      * @param config The Configuration for this list.
+     * @param lang The language if use language specific fieldnames
+     * @param configFieldName If defined then use this fieldName insted in the config devined ones
      */                 
-    public getDisplayTextFromConfig(item:IListItemResult, config:ListConfig) {
+    public getDisplayTextFromConfig(item:IListItemResult, config:ListConfig, lang: string, configFieldName?: string) {
         let texts:string[] = [];
-        for(let fieldName of config.DisplayFields) {
-            let fieldValue = item[fieldName.InternalName];
-            if (fieldName.DisplayFormat) {
-                fieldValue = this.replaceAll(fieldName.DisplayFormat, "{fieldValue}",  fieldValue);
+        for(let fieldConfig of config.DisplayFields) {            
+            let fieldNaame = fieldConfig.UseLanguageVariants ?
+                fieldConfig.InternalName + "_" + lang : fieldConfig.InternalName;
+            if (configFieldName)
+                fieldNaame = fieldConfig.UseLanguageVariants ?
+                configFieldName + "_" + lang : configFieldName;
+            
+            let fieldValue = item[fieldNaame];
+            if (fieldConfig.DisplayFormat) {
+                fieldValue = this.replaceAll(fieldConfig.DisplayFormat, "{fieldValue}",  fieldValue);
             }
             texts.push(fieldValue)
         }

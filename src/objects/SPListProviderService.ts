@@ -3,11 +3,12 @@ import { Control, ControlTypes, IDataProviderService } from 'formgen-react';
 import { JSPFormData } from './JSPFormData';
 import { $REST } from 'gd-sprest';
 import { SPHelper } from '../SPHelper';
-import { IListItemResult, IListItemQueryResult } from 'gd-sprest/build/mapper/types';
+import { IListItemResult, IListItemQueryResult, IListItemResults } from 'gd-sprest/build/mapper/types';
 import { ListConfig } from './ListConfig';
 import { SPConfig } from './SPConfig';
 import { Helper } from 'formgen-react/dist/Helper';
 import { ITargetInfo } from 'gd-sprest/build/utils/types';
+import { List } from '..';
 
 /**
 * The Provider Service to access SharePoint Lists
@@ -31,51 +32,30 @@ export class SPListProviderService implements IDataProviderService {
      */
     formData?: JSPFormData;
 
-    /** 
-     * Retrieve data from the sharepoint 
-     * @param configKey Config Key from the control. This will use the by the provider to finde the correct configuration for this request
-     * @param formData The Current complete Form Model. Here the config should be found.
-     * @param controlConfig The control that calls the request.
-     * @param lang The current language to use.
+    /**
+     *Get from the config key the List Config
+     * @param configKey The Config Key to get Infos from.
      */
-    public retrieveListData(configKey:string, controlConfig: Control, lang:string):Promise<any[]> {
-        let config = this.formData.SPConfig.ListConfigs.find(c => c.Key ==configKey);
-        if (!config)
-            throw "No List Configuration found for key " + configKey;
-        return new Promise<any[]>((resolve, reject)  => {
-            let spConfig:SPConfig = Helper.getTranslatedObject(config.ListConfig, config.ConfigTranslation);
-            let webUrl = spConfig.BaseUrl ? spConfig.BaseUrl : "" + 
-                config.ListConfig.WebUrl ? config.ListConfig.WebUrl : "";
-            webUrl = this.spHelper.getCorrectWebUrl(webUrl);
-            let listView = this.spHelper.getListViewXml(this.formData, config.ListConfig);
+    private getConfigFromKey(configKey: string) : List {
+        if (!configKey)
+            throw "No List Configuration defined";
 
-            $REST.Web(webUrl, this.targetInfo)
-            .Lists()
-            .getByTitle(config.ListConfig.ListName)
-            .getItems(listView).execute(items => {
-                switch (controlConfig.RenderType){
-                    case ControlTypes.DropDown:
-                    case ControlTypes.ComboBox:
-                    case ControlTypes.ChoiceGroup:
-                        let dropDonwEntries:IDropdownOption[] = [];
-                        for(let item of items.results) {
-                            dropDonwEntries.push({
-                                key: item[config.ListConfig.KeyField],
-                                text: this.spHelper.getDisplayTextFromConfig(item, config.ListConfig)
-                            })
-                        }
-                        resolve(dropDonwEntries);
-                        break;
-                    default:
-                        let cascadData:any[] = [];
-                        for(let item of items.results) {
-                            cascadData.push(this.getCascaderItems(webUrl, item, config.ListConfig));
-                        }
-                        resolve(cascadData);
-                        break;
-                }
-            });
-        });
+        let configParts = configKey.split(".");
+        let config = this.formData.SPConfig.ListConfigs.find(c => c.Key == configParts[0]);
+        if (!config)
+            throw "No List Configuration found for key " + configParts[0];
+        return config;
+    }
+
+    /**
+     * Get the correct web url from the list.
+     * @param config The config for the given list
+     * @param controlConfig SharePoint part of the configuration (translated)
+     */
+    private getWebUrl(config: List, spConfig:SPConfig)  {
+        let webUrl = spConfig.BaseUrl ? spConfig.BaseUrl : "" + 
+        config.ListConfig.WebUrl ? config.ListConfig.WebUrl : "";
+        return  this.spHelper.getCorrectWebUrl(webUrl);
     }
 
     /**
@@ -87,7 +67,83 @@ export class SPListProviderService implements IDataProviderService {
      * @param limitResults Count of items to return at max.
      */
     retrieveFilteredListData(configKey: string, controlConfig: Control, lang: string, filter: string, limitResults?: number): Promise<any[]> {
-        return null;
+        let configParts = configKey.split(".");
+        let config = this.getConfigFromKey(configKey);
+        return new Promise<any[]>((resolve, reject)  => {
+            let spConfig:SPConfig = Helper.getTranslatedObject(config.ListConfig, config.ConfigTranslation);
+            let webUrl = this.getWebUrl(config, spConfig);
+            let listView = this.spHelper.getListViewXml(this.formData, config.ListConfig);
+            
+            if (filter) {
+                if (configParts.length < 2)
+                    throw "When a filter is defined, then also a field name must be specified";
+                let fieldName = configParts[1];
+                let operator = " eq ";
+                if (configParts.length == 3)
+                    operator = " " + configParts[2] + " ";
+                if (isNaN(parseFloat(filter)))
+                    filter = " '" + filter + "'";
+
+                $REST.Web(webUrl, this.targetInfo)
+                .Lists()
+                .getByTitle(config.ListConfig.ListName)
+                .query({
+                    Top: limitResults,
+                    Filter: fieldName + operator + filter,
+                    GetAllItems: true
+                }).execute(items => {
+                    resolve(this.confertListData(controlConfig, items.Items, config, webUrl, lang))
+                });
+            }
+            else {
+                $REST.Web(webUrl, this.targetInfo)
+                .Lists()
+                .getByTitle(config.ListConfig.ListName)
+                .getItems(listView).execute(items => {
+                    resolve(this.confertListData(controlConfig, items, config, webUrl, lang))
+                });
+            }
+        });
+    }
+
+    /**
+     * Retrieve list data from the store filtered and optional limited with count of result items
+     * @param controlConfig The control that calls the request.
+     * @param items The Result from the search.
+     * @param config The configuration for a list.
+     * @param webUrl The url where the list is.
+     */
+    private confertListData(controlConfig: Control, items:IListItemResults, config:List, webUrl: string, lang: string): any[] {
+        switch (controlConfig.RenderType){
+            case ControlTypes.DropDown:
+            case ControlTypes.ComboBox:
+            case ControlTypes.ChoiceGroup:
+                let dropDonwEntries:IDropdownOption[] = [];
+                for(let item of items.results) {
+                    dropDonwEntries.push({
+                        key: item[config.ListConfig.KeyField],
+                        text: this.spHelper.getDisplayTextFromConfig(item, config.ListConfig, lang)
+                    })
+                }
+                return dropDonwEntries;
+            default:
+                let cascadData:any[] = [];
+                for(let item of items.results) {
+                    cascadData.push(this.getCascaderItems(webUrl, item, config.ListConfig, lang));
+                }
+                return cascadData;
+        }
+    }
+
+    /** 
+     * Retrieve data from the sharepoint 
+     * @param configKey Config Key from the control. This will use the by the provider to finde the correct configuration for this request
+     * @param formData The Current complete Form Model. Here the config should be found.
+     * @param controlConfig The control that calls the request.
+     * @param lang The current language to use.
+     */
+    public retrieveListData(configKey:string, controlConfig: Control, lang:string):Promise<any[]> {
+        return this.retrieveFilteredListData(configKey, controlConfig, lang, undefined, undefined);
     }
 
     /**
@@ -102,7 +158,40 @@ export class SPListProviderService implements IDataProviderService {
      * @param lang The current language to use.
      */
     retrieveSingleData(configKey: string, senderControl: Control, receiverControl: Control, lang: string): Promise<any> {
-        return null;
+        let configParts = configKey.split(".");
+        if (configParts.length < 3)
+            throw "At least the providerkey, the list config, the filter fieldname and the filtervalue has to be defined e.g. SPListProvider.MyList.Title.test (would filter from the myList the Title with the value 'test'";
+      
+        let config = this.getConfigFromKey(configKey);
+        return new Promise<any>((resolve, reject)  => {
+            let spConfig:SPConfig = Helper.getTranslatedObject(config.ListConfig, config.ConfigTranslation);
+            let webUrl = this.getWebUrl(config, spConfig);
+
+            let fieldName = configParts[1];
+            let filter = configParts[2];
+            if (isNaN(parseFloat(filter)))
+                filter = " '" + filter + "'";
+
+            let displayFieldName = undefined
+            if (configParts.length > 3)
+                displayFieldName = configParts[3];
+
+            $REST.Web(webUrl, this.targetInfo)
+            .Lists()
+            .getByTitle(config.ListConfig.ListName)
+            .query({
+                Top: 1,
+                Filter: fieldName + " eq " + filter,
+                GetAllItems: true
+            }).execute(items => {
+                if (items && items.Items && items.Items.results && items.Items.results.length > 0) {
+                    let text = this.spHelper.getDisplayTextFromConfig(items.Items.results[0], config.ListConfig, lang, displayFieldName);
+                    resolve(text);                    
+                }
+                else
+                    resolve(undefined);
+            });
+        });
     }
     
     /** 
@@ -110,12 +199,13 @@ export class SPListProviderService implements IDataProviderService {
      * @param webUrl  Root Web Url for the Lists.
      * @param item List item to use for the data.
      * @param listConfig The List configuration for this level.
+     * @param lang The current language to use.
      */
-    private getCascaderItems(webUrl: string, item: IListItemResult | IListItemQueryResult, listConfig: ListConfig): any {
+    private getCascaderItems(webUrl: string, item: IListItemResult | IListItemQueryResult, listConfig: ListConfig, lang: string): any {
         let key:string = item[listConfig.KeyField];
         let cItem = {
             value: key.toString(),
-            label: this.spHelper.getDisplayTextFromConfig(item as IListItemResult, listConfig),
+            label: this.spHelper.getDisplayTextFromConfig(item as IListItemResult, listConfig, lang),
             disabled: item[listConfig.DisabledField] ? 
                  item[listConfig.DisabledField] as boolean : undefined 
         }
@@ -137,7 +227,7 @@ export class SPListProviderService implements IDataProviderService {
                 .executeAndWait();
                 if (items.results) {
                     for(let item1 of items.results) {
-                        let cItem1 = this.getCascaderItems(webUrl, item1, config);
+                        let cItem1 = this.getCascaderItems(webUrl, item1, config, lang);
                         citems.push(cItem1);
                     }
                 }
