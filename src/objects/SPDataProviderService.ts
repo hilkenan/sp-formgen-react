@@ -9,6 +9,7 @@ import { ListConfig } from './ListConfig';
 import { SPConfig } from './SPConfig';
 import { Helper } from 'formgen-react/dist/Helper';
 import { ITargetInfo } from 'gd-sprest/build/utils/types';
+import { IDataProviderCollection } from 'formgen-react/dist/formBaseInput/FormBaseInput.types';
   
 /**
  * The Types to use for injection
@@ -18,15 +19,16 @@ export const typesForInjectSP = { targetInfo: "targetInfo" };
 /**
 * The Provider Service to access SharePoint Lists
 */  
-@injectable()
 export class SPDataProviderService implements IDataProviderService {
     private targetInfo: ITargetInfo;
     private spHelper: SPHelper;
 
+    public providerServiceKey = "SPListProvider"
+
     /**
-     * Takes the target Info as parmeter.s
+     * Takes the target Info as parmeter.
      */
-    public constructor(@inject(typesForInjectSP.targetInfo) targetInfo: ITargetInfo) {
+    public constructor(targetInfo: ITargetInfo) {
         this.targetInfo = targetInfo;
         this.spHelper = new SPHelper(targetInfo)
     }
@@ -125,4 +127,17 @@ export class SPDataProviderService implements IDataProviderService {
         }
         return cItem;
     }
+}
+
+
+@injectable()
+export class SPDataProviderServiceCollection implements IDataProviderCollection {
+    /**
+     * Takes the target Info as parmeter.s
+     */
+    public constructor(@inject(typesForInjectSP.targetInfo) targetInfo: ITargetInfo) {
+        let spListProvider = new SPDataProviderService(targetInfo);
+        this.providers.push(spListProvider);
+    }
+    providers:IDataProviderService[] = [];
 }

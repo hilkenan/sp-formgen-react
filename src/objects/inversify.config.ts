@@ -1,8 +1,9 @@
 import { Container } from 'inversify';
-import { SPDataProviderService, typesForInjectSP } from './SPDataProviderService';
-import { IDataProviderService, typesForInject } from 'formgen-react';
+import { typesForInjectSP, SPDataProviderServiceCollection } from './SPDataProviderService';
+import { typesForInject } from 'formgen-react';
 import { ITargetInfo } from 'gd-sprest/build/utils/types';
 import { SharePointTargetLocal, SharePointTargetOnline } from './SharePointTarget';
+import { IDataProviderCollection } from 'formgen-react/dist/formBaseInput/FormBaseInput.types';
 
 /**
 * Inversion Of Control class container.
@@ -21,7 +22,7 @@ export class SPContainer extends Container {
     }
   
     declareDependencies() {
-      this.bind<IDataProviderService>(typesForInject.IDataProviderService).to(SPDataProviderService);
+      this.bind<IDataProviderCollection>(typesForInject.IDataProviderCollection).to(SPDataProviderServiceCollection);
       this.bind<ITargetInfo>(typesForInjectSP.targetInfo).toConstantValue(this.targetInfo);
     }
 }

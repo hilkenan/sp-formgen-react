@@ -31,7 +31,7 @@
     "url": "https://github.com/hilkenan/sp-formgen-react/issues"
   },
   "dependencies": {
-    "formgen-react": "^0.4.0",
+    "formgen-react": "^0.5.0",
     "gd-sprest": "^3.6.3",
     "gd-sprest-react": "^2.9.0",
     "inversify": "^4.11.1",
