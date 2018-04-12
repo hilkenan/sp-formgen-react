@@ -22,6 +22,17 @@
 				}]
 			}
 		},{
+			"key": "upload",
+			"config": {
+				"key_field": "ID",
+				"list_name": "Dokumente",
+				"display_fields": [{
+					"internal_name": "Title"
+				},{
+					"internal_name": "FormTest1"
+				}]
+			}
+		},{
 			"key": "unittest",
 			"config": {
 				"display_format": "Test {texts[0]} :{texts[1]}",
@@ -65,27 +76,43 @@
 		"columns": [{
 			"label_with": 4,
 			"controls": [{
+				"id": "UserName",
+				"title": "User Namen",
+				"dataprovider_value_configkey": "SPUserProfileProvider.reports.LastName",
+				"control_type": [ "Textbox" ]
+			},{
+                "id": "uploadForm",
+				"title": "Dateien",
+				"dataprovider_list_configkeys": [ "SPListProvider.upload" ],
+                "control_type": [ "FileUpload" ],
+				"label_position": [ "Top"],
+				"config": {
+					"ShowFiles": true,
+					"DropZoneText": "Drop here",
+					"DropedFilesText": "Dateien"
+				}
+			},{
                 "id": "choiceGroup",
 				"title": "ChoiceGroup",
-				"dataProviderConfigKeys": [ "onelevel" ],
+				"dataprovider_list_configkeys": [ "SPListProvider.onelevel" ],
                 "control_type": [ "ChoiceGroup" ],
                 "label_position": [ "Top"]
 			},{
                 "id": "comboBox",
 				"title": "ComboBox",
-				"dataProviderConfigKeys": [ "onelevel" ],
+				"dataprovider_list_configkeys": [ "SPListProvider.onelevel" ],
                 "control_type": [ "ComboBox" ],
                 "label_position": [ "Top"]
 			},{
                 "id": "dropdown",
 				"title": "DropDown",
-				"dataProviderConfigKeys": [ "onelevel" ],
+				"dataprovider_list_configkeys": [ "SPUserProfileProvider.[testform.UserName].LoginName.LastName.substringof" ],
                 "control_type": [ "DropDown" ],
                 "label_position": [ "Top"]
 			},{
                 "id": "cascading",
 				"title": "Cascader",
-				"dataProviderConfigKeys": [ "unittest" ],
+				"dataprovider_list_configkeys": [ "SPListProvider.unittest" ],
                 "control_type": [ "CascadingDropDown" ],
                 "label_position": [ "Top"]
 			},{

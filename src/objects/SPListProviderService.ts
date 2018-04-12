@@ -9,6 +9,7 @@ import { SPConfig } from './SPConfig';
 import { Helper } from 'formgen-react/dist/Helper';
 import { ITargetInfo } from 'gd-sprest/build/utils/types';
 import { List } from '..';
+import { IFileObject } from 'formgen-react/dist/inputs/fileUpload/FormFileUpload';
 
 /**
 * The Provider Service to access SharePoint Lists
@@ -47,15 +48,83 @@ export class SPListProviderService implements IDataProviderService {
         return config;
     }
 
-    /**
-     * Get the correct web url from the list.
-     * @param config The config for the given list
-     * @param controlConfig SharePoint part of the configuration (translated)
+
+   /**
+     * Add a file to the lib
+     * @param configKey Config Key from the control. This will use the by the provider to finde the correct configuration for this request
+     * @param controlConfig The control that calls the request.
+     * @param fileName The FileName to be stored.
+     * @param fileContent The Content of the file.
+     * @returns The full path where the file was stored.
      */
-    private getWebUrl(config: List, spConfig:SPConfig)  {
-        let webUrl = spConfig.BaseUrl ? spConfig.BaseUrl : "" + 
-        config.ListConfig.WebUrl ? config.ListConfig.WebUrl : "";
-        return  this.spHelper.getCorrectWebUrl(webUrl);
+    addFile(configKey: string, controlConfig: Control, fileName: string, fileContent: any): string {
+        let config = this.getConfigFromKey(configKey);
+        let spConfig:SPConfig = Helper.getTranslatedObject(config.ListConfig, config.ConfigTranslation);
+        let webUrl = this.spHelper.getWebUrl(config, spConfig);
+
+        let rootFolder = $REST.Web(webUrl, this.targetInfo)
+            .Lists()
+            .getByTitle(config.ListConfig.ListName)
+            .RootFolder()
+            .executeAndWait();
+
+        let folderUrl = rootFolder.ServerRelativeUrl + "/" + this.formData.ID + "_" + controlConfig.ID;
+        $REST.Web(webUrl, this.targetInfo)
+            .Lists()
+            .getByTitle(config.ListConfig.ListName)
+            .RootFolder()
+            .Folders()
+            .add(folderUrl)
+            .executeAndWait();
+        
+        let result = $REST.Web(webUrl, this.targetInfo)
+            .Lists()
+            .getByTitle(config.ListConfig.ListName)
+            .RootFolder()
+            .Folders()
+            .getbyurl(folderUrl)
+            .Files()
+            .add(true, fileName, fileContent)
+            .executeAndWait();
+        return result.ServerRelativeUrl;
+    }
+
+    /**
+     * Remove a file from the lib
+     * @param configKey Config Key from the control. This will use the by the provider to finde the correct configuration for this request
+     * @param controlConfig The control that calls the request.
+     * @param fileName The FileName to be removed.
+     */
+    removeFile(configKey: string, controlConfig: Control, fileName: string): any {
+        let config = this.getConfigFromKey(configKey);
+        let spConfig:SPConfig = Helper.getTranslatedObject(config.ListConfig, config.ConfigTranslation);
+        let webUrl = this.spHelper.getWebUrl(config, spConfig);
+
+        let files = controlConfig.Value as IFileObject[];
+        if (files) {
+            let file = files.find(f => f.fileName == fileName);
+            if (file)
+                $REST.Web(webUrl, this.targetInfo)
+                .getFileByServerRelativeUrl(file.storedPath)
+                .delete()
+                .executeAndWait();
+            if (files.length == 1) {
+                let rootFolder = $REST.Web(webUrl, this.targetInfo)
+                    .Lists()
+                    .getByTitle(config.ListConfig.ListName)
+                    .RootFolder()
+                    .executeAndWait();
+                let folderUrl = rootFolder.ServerRelativeUrl + "/" + this.formData.ID + "_" + controlConfig.ID;
+                $REST.Web(webUrl, this.targetInfo)
+                    .Lists()
+                    .getByTitle(config.ListConfig.ListName)
+                    .RootFolder()
+                    .Folders()
+                    .getbyurl(folderUrl)
+                    .delete()
+                    .executeAndWait();
+            }
+        }
     }
 
     /**
@@ -71,7 +140,7 @@ export class SPListProviderService implements IDataProviderService {
         let config = this.getConfigFromKey(configKey);
         return new Promise<any[]>((resolve, reject)  => {
             let spConfig:SPConfig = Helper.getTranslatedObject(config.ListConfig, config.ConfigTranslation);
-            let webUrl = this.getWebUrl(config, spConfig);
+            let webUrl = this.spHelper.getWebUrl(config, spConfig);
             let listView = this.spHelper.getListViewXml(this.formData, config.ListConfig);
             
             if (filter) {
@@ -165,7 +234,7 @@ export class SPListProviderService implements IDataProviderService {
         let config = this.getConfigFromKey(configKey);
         return new Promise<any>((resolve, reject)  => {
             let spConfig:SPConfig = Helper.getTranslatedObject(config.ListConfig, config.ConfigTranslation);
-            let webUrl = this.getWebUrl(config, spConfig);
+            let webUrl = this.spHelper.getWebUrl(config, spConfig);
 
             let fieldName = configParts[1];
             let filter = configParts[2];

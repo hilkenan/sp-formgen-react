@@ -1,9 +1,11 @@
 import { Control, IDataProviderService } from 'formgen-react';
 import { JSPFormData } from './JSPFormData';
 import { ITargetInfo } from 'gd-sprest/build/utils/types';
-import { Web, PeopleManager } from 'gd-sprest';
-import { IPersonProperties, IPeopleManager, IUserResult, IUserQueryResult } from 'gd-sprest/build/mapper/types';
+import { Web, PeopleManager, $REST } from 'gd-sprest';
+import { IPersonProperties, IUserResult, IUserQueryResult } from 'gd-sprest/build/mapper/types';
 import { IDropdownOption } from 'office-ui-fabric-react';
+import { Helper } from 'formgen-react/dist/Helper';
+import { KeyValue } from 'gd-sprest/build/mapper/types/complexTypes';
 
 /**
 * The Provider Service to access the User Profile from SharePoint
@@ -34,41 +36,135 @@ export class SPUserProfileProviderService implements IDataProviderService {
      * @param limitResults Count of items to return at max.
      */
     retrieveFilteredListData(configKey: string, controlConfig: Control, lang: string, filter: string, limitResults?: number): Promise<any[]> {
-        let configParts = configKey.split(".");
-        if (configParts.length < 2)
+        let providerConfigKey = Helper.getConfigKeyFromProviderKey(configKey);
+        let configParts = providerConfigKey.split(".");
+        
+        if (configParts.length < 2 )
             throw "At least the Provider, the name of the property(properties) to receive, and the filter Prpoerty has to be defined e.g. SPUserProfileProvider.AccountName to get the account name of the filtered User"
         return new Promise<any[]>((resolve, reject)  => {
-            let values: any[] = [];
-            let operator = " eq ";
+            let operator = "eq";
             if (configParts.length == 3)
                 operator = " " + configParts[2] + " ";
-            if (isNaN(parseFloat(filter)))
+            if (isNaN(parseFloat(filter))) {
                 filter = " '" + filter + "'";
-        
-            (new Web(undefined, this.targetInfo))
+            }
+            let fullFilter = ""
+            switch(operator) {
+                case "substringof":
+                    fullFilter = "substringof(" + filter + "," + configParts[0] + ")";
+                    break;
+                case "startswith":
+                    fullFilter = "startswith(" + configParts[0] + "," + filter + ")";
+                    break;
+                default:
+                    fullFilter = configParts[0] + " " + operator + " " + filter;                
+                    break;
+            }
+
+            $REST.Web("", this.targetInfo)
             .SiteUsers()
             .query({
-                Filter: configParts[1] + operator + filter,
+                Filter: fullFilter,
                 Select: ["*"]
             })
             .execute((users) => {
-                let propertyName = configParts[0];
+                let propertyName = configParts[1];
+                let dropDonwEntries:IDropdownOption[] = [];
                 if (users && users.results && users.results.length > 0) {
+                    let promises:Promise<any>[] = [];
                     for (let user of users.results) {
                         let value = user[propertyName];
-                        if (!value) {
-                            let peopleManager = new PeopleManager();
-                            peopleManager.getUserProfilePropertyFor(filter, propertyName)
-                            .execute((profile) => {
-                                let value = this.getPropertyForOthers(propertyName, configParts, profile, peopleManager);
-                                values.push(value);
-                            });
+                        if (value == undefined) {
+                            promises.push(this.getPropertiesFor(user.LoginName));
+                        }
+                        else {
+                            if (value != "") {
+                                dropDonwEntries.push({
+                                    key: user.LoginName,
+                                    text: value });
+                            }
                         }
                     }
+                    if (dropDonwEntries.length > 0) {
+                        resolve(dropDonwEntries);
+                        return;                        
+                    }
+                    else {
+                        let promises2:Promise<any>[] = [];                        
+                        Promise.all(promises).then((innerProm) => {
+                            for(let p of innerProm) {
+                                promises2.push(p.json())
+                            }
+                            Promise.all(promises2).then((allValues) => {
+                                let subPropertyName = configParts[1];
+                                let dropDonwEntries2:IDropdownOption[] = [];
+                                
+                                for(let json of allValues) {
+                                    let innerValue = json["d"][subPropertyName];
+                                    if (innerValue == undefined && json["d"]["UserProfileProperties"]) {
+                                        let resArray = json["d"]["UserProfileProperties"].results as Array<KeyValue>
+                                        let valueO = resArray.find(e => e.Key == subPropertyName);
+                                        if (valueO)
+                                            innerValue = valueO.Value;
+                                    }
+                                    if (innerValue) {
+                                        dropDonwEntries2.push({
+                                            key: json["d"]["AccountName"],
+                                            text: innerValue });
+                                    }
+                                }
+                                resolve(dropDonwEntries2);    
+                            });
+                        });
+                        return;
+                    }
                 }
-                resolve(values);
+                resolve(dropDonwEntries);                
             })
         });
+    }
+
+    /**
+     * Add a photo to the current users UserProfile
+     * @param configKey Config Key from the control. This will use the by the provider to finde the correct configuration for this request
+     * @param controlConfig The control that calls the request.
+     * @param fileName The FileName to be stored.
+     * @param fileContent The Content of the file.
+     * @returns The full path where the file was stored.
+     */
+    addFile(configKey: string, controlConfig: Control, fileName: string, fileContent: any): string {
+        let peopleManager = new PeopleManager(this.targetInfo);
+        peopleManager.setMyProfilePicture(fileContent)
+        .executeAndWait();
+        let user = (new Web(undefined, this.targetInfo))
+            .CurrentUser()
+            .executeAndWait();
+        
+        let property = peopleManager.getUserProfilePropertyFor(user.LoginName, "PictureUrl")
+            .executeAndWait();
+        return property.PictureUrl;
+    }
+
+    /**
+     * Remove a foto from the current UserProfile
+     * @param configKey Config Key from the control. This will use the by the provider to finde the correct configuration for this request
+     * @param controlConfig The control that calls the request.
+     * @param fileName The FileName to be removed.
+     */
+    removeFile(configKey: string, controlConfig: Control, fileName: string): any {
+        let peopleManager = new PeopleManager(this.targetInfo);
+        peopleManager.setMyProfilePicture(undefined)
+        .executeAndWait();
+    }
+    
+    /** 
+     * Manual Call the Rest API Method (buggy gd-sprest)
+     * @param account Account Name
+     */
+    private getPropertiesFor(account:string) : Promise<Response> {
+        account = encodeURIComponent(account);
+        let apiUrl = this.targetInfo.url + "/_api/sp.userprofiles.peoplemanager/getPropertiesFor(accountName=@v)?@v='" + account + "'";
+        return fetch(apiUrl);
     }
 
     /** 
@@ -78,28 +174,57 @@ export class SPUserProfileProviderService implements IDataProviderService {
      * @param profile The Person Properties (Profile)
      * @param manager The People Manager
      */
-    private getPropertyForOthers(propertyName:string, configParts:string[], profile:IPersonProperties, manager:IPeopleManager): any {
-        let value = profile[propertyName];
-        if (configParts.length > 1) {
-            let accounts = undefined;
-            if (configParts[1] == "reports")
-                accounts = profile.ExtendedReports;
-            else if (configParts[1] == "managers")
-                accounts = profile.ExtendedManagers;
-            if (accounts) {
-                if (configParts.length == 3) {
-                    let propertyName = configParts[2];
-                    let subProperties = manager.getUserProfilePropertyFor(accounts, propertyName)
-                    .executeAndWait();
-                    value = subProperties[propertyName];
-                    return value;
+    private getPropertyForOthers(propertyName:string, configParts:string[], profile:IPersonProperties): Promise<any> {
+        return new Promise<any>((resolve)  => {
+            let value = profile[propertyName];
+            if (configParts.length > 1) {
+                let innerObject = undefined;
+                if (configParts[0] == "reports")
+                    innerObject = profile.ExtendedReports as Object;
+                else if (configParts[0] == "managers") {
+                    innerObject = profile.ExtendedManagers as Object;
                 }
-                else
-                    return accounts;
+                if (innerObject) {
+                    let result = innerObject["results"] as Array<string>;
+                    let accounts:string[];
+                    accounts = result;
+
+                    if (configParts.length == 2) {
+                        let promises:Promise<any>[] = [];
+                        for(let account of accounts) {
+                            if (account != profile.AccountName) {
+                                promises.push(this.getPropertiesFor(account))
+                            }
+                        }
+                        let promises2:Promise<any>[] = [];                        
+                        Promise.all(promises).then((innerProm) => {
+                            for(let p of innerProm) {
+                                promises2.push(p.json())
+                            }
+                            Promise.all(promises2).then((allValues) => {
+                                let values:any[] = [];
+                                let subPropertyName = configParts[1];
+                                for(let json of allValues) {
+                                    let innerValue = json["d"][subPropertyName];
+                                    if (innerValue == undefined && json["d"]["UserProfileProperties"]) {
+                                        let resArray = json["d"]["UserProfileProperties"].results as Array<KeyValue>
+                                        let valueO = resArray.find(e => e.Key == subPropertyName);
+                                        if (valueO)
+                                            innerValue = valueO.Value;
+                                    }
+                                    values.push(innerValue);
+                                }
+                                resolve(values.join(","));    
+                            });
+                        });
+                    }
+                    else
+                        resolve(accounts.join(","));
+                }
             }
-        else
-            return value;
-        }
+            else
+                resolve(value);
+        });
     }
 
     /** 
@@ -204,11 +329,12 @@ export class SPUserProfileProviderService implements IDataProviderService {
                 let propertyName = configParts[0];
                 let value = user[propertyName];
                 if (!value) {
-                    let peopleManager = new PeopleManager();
+                    let peopleManager = new PeopleManager(this.targetInfo);
                     peopleManager.getMyProperties()
                     .execute((profile) => {
-                        let value = this.getPropertyForOthers(propertyName, configParts, profile, peopleManager);
-                        resolve(value);
+                        this.getPropertyForOthers(propertyName, configParts, profile).then((value) => {
+                            resolve(value);
+                        });
                     });
                 }
                 else {

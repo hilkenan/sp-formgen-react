@@ -4,6 +4,7 @@ import { JSPFormData } from "./objects/JSPFormData";
 import { IListItemResult } from "gd-sprest/build/mapper/types";
 import { ListConfig } from "./objects/ListConfig";
 import { ITargetInfo } from "gd-sprest/build/utils/types";
+import { List, SPConfig } from ".";
 
 /**
  * Helper class to acces sharepoint.
@@ -31,7 +32,7 @@ export class SPHelper {
         
         let listView;
         if (!config.ViewName) {
-            listView = this.getCamlQueryFromDevaultView(webUrl, config.ListName);
+            listView = this.getCamlQueryFromDefaultView(webUrl, config.ListName);
         }
         else {
             listView = this.getCamlQueryFromView(webUrl, config.ViewName, config.ListName);                
@@ -53,11 +54,22 @@ export class SPHelper {
     }
 
     /**
+     * Get the correct web url from the list.
+     * @param config The config for the given list
+     * @param controlConfig SharePoint part of the configuration (translated)
+     */
+    public getWebUrl(config: List, spConfig:SPConfig)  {
+        let webUrl = spConfig.BaseUrl ? spConfig.BaseUrl : "" + 
+        config.ListConfig.WebUrl ? config.ListConfig.WebUrl : "";
+        return  this.getCorrectWebUrl(webUrl);
+    }
+    
+    /**
      * Get the Defauld ListView cached from.
      * @param webUrl The Url relative to the base url
      * @param listName The Dipslay name of the list to use.
      */                 
-    public getCamlQueryFromDevaultView(webUrl: string, listName:string): string {
+    public getCamlQueryFromDefaultView(webUrl: string, listName:string): string {
         if (this.camlQueries == undefined)
             this.camlQueries = [];
 

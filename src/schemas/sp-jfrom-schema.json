@@ -121,13 +121,19 @@
 						"type": "string"
 					}
 				},
-				"dataProviderConfigKeys": {
+				"dataprovider_list_configkeys": {
 					"type": "array",
 					"minItems": 1,
 					"items": {
 						"type": "string"
 					}
-				},				
+				},
+				"dataprovider_value_configkey": {
+					"type": "string"
+				},
+				"dataprovider_defaultvalue_configkey": {
+					"type": "string"
+				},
 				"read_only": {
 					 "type": "boolean",
 					 "default": false
@@ -258,7 +264,8 @@
 					"CustomButton",
 					"DateTimePicker",
 					"TimePicker",
-					"PeoplePicker"
+					"PeoplePicker",
+					"FileUpload"
 				]
 			}
 		}
