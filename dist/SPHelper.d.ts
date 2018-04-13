@@ -2,6 +2,7 @@ import { JSPFormData } from "./objects/JSPFormData";
 import { IListItemResult } from "gd-sprest/build/mapper/types";
 import { ListConfig } from "./objects/ListConfig";
 import { ITargetInfo } from "gd-sprest/build/utils/types";
+import { List, SPConfig } from ".";
 /**
  * Helper class to acces sharepoint.
  */
@@ -25,11 +26,17 @@ export declare class SPHelper {
      */
     getCorrectWebUrl(webUrl: string): string;
     /**
+     * Get the correct web url from the list.
+     * @param config The config for the given list
+     * @param controlConfig SharePoint part of the configuration (translated)
+     */
+    getWebUrl(config: List, spConfig: SPConfig): string;
+    /**
      * Get the Defauld ListView cached from.
      * @param webUrl The Url relative to the base url
      * @param listName The Dipslay name of the list to use.
      */
-    getCamlQueryFromDevaultView(webUrl: string, listName: string): string;
+    getCamlQueryFromDefaultView(webUrl: string, listName: string): string;
     /**
      * Replace the all occurencies from search in the target with replacments
      * @param target the origin string
@@ -41,8 +48,10 @@ export declare class SPHelper {
      * Collect the text for the display
      * @param item The ListItem Result to collect texts from.
      * @param config The Configuration for this list.
+     * @param lang The language if use language specific fieldnames
+     * @param configFieldName If defined then use this fieldName insted in the config devined ones
      */
-    getDisplayTextFromConfig(item: IListItemResult, config: ListConfig): string;
+    getDisplayTextFromConfig(item: IListItemResult, config: ListConfig, lang: string, configFieldName?: string): string;
     /**
      * Get the ListView cached from the given view name.
      * @param webUrl The Url relative to the base url

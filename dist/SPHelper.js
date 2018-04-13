@@ -22,7 +22,7 @@ var SPHelper = /** @class */ (function () {
         webUrl = this.getCorrectWebUrl(webUrl);
         var listView;
         if (!config.ViewName) {
-            listView = this.getCamlQueryFromDevaultView(webUrl, config.ListName);
+            listView = this.getCamlQueryFromDefaultView(webUrl, config.ListName);
         }
         else {
             listView = this.getCamlQueryFromView(webUrl, config.ViewName, config.ListName);
@@ -42,11 +42,21 @@ var SPHelper = /** @class */ (function () {
             return webUrl;
     };
     /**
+     * Get the correct web url from the list.
+     * @param config The config for the given list
+     * @param controlConfig SharePoint part of the configuration (translated)
+     */
+    SPHelper.prototype.getWebUrl = function (config, spConfig) {
+        var webUrl = spConfig.BaseUrl ? spConfig.BaseUrl : "" +
+            config.ListConfig.WebUrl ? config.ListConfig.WebUrl : "";
+        return this.getCorrectWebUrl(webUrl);
+    };
+    /**
      * Get the Defauld ListView cached from.
      * @param webUrl The Url relative to the base url
      * @param listName The Dipslay name of the list to use.
      */
-    SPHelper.prototype.getCamlQueryFromDevaultView = function (webUrl, listName) {
+    SPHelper.prototype.getCamlQueryFromDefaultView = function (webUrl, listName) {
         if (this.camlQueries == undefined)
             this.camlQueries = [];
         var key = listName + ":defaultView";
@@ -77,14 +87,21 @@ var SPHelper = /** @class */ (function () {
      * Collect the text for the display
      * @param item The ListItem Result to collect texts from.
      * @param config The Configuration for this list.
+     * @param lang The language if use language specific fieldnames
+     * @param configFieldName If defined then use this fieldName insted in the config devined ones
      */
-    SPHelper.prototype.getDisplayTextFromConfig = function (item, config) {
+    SPHelper.prototype.getDisplayTextFromConfig = function (item, config, lang, configFieldName) {
         var texts = [];
         for (var _i = 0, _a = config.DisplayFields; _i < _a.length; _i++) {
-            var fieldName = _a[_i];
-            var fieldValue = item[fieldName.InternalName];
-            if (fieldName.DisplayFormat) {
-                fieldValue = this.replaceAll(fieldName.DisplayFormat, "{fieldValue}", fieldValue);
+            var fieldConfig = _a[_i];
+            var fieldNaame = fieldConfig.UseLanguageVariants ?
+                fieldConfig.InternalName + "_" + lang : fieldConfig.InternalName;
+            if (configFieldName)
+                fieldNaame = fieldConfig.UseLanguageVariants ?
+                    configFieldName + "_" + lang : configFieldName;
+            var fieldValue = item[fieldNaame];
+            if (fieldConfig.DisplayFormat) {
+                fieldValue = this.replaceAll(fieldConfig.DisplayFormat, "{fieldValue}", fieldValue);
             }
             texts.push(fieldValue);
         }

@@ -11,9 +11,9 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 var inversify_1 = require("inversify");
-var SPDataProviderService_1 = require("./SPDataProviderService");
 var formgen_react_1 = require("formgen-react");
 var SharePointTarget_1 = require("./SharePointTarget");
+var SPDataProviderServiceCollection_1 = require("../SPDataProviderServiceCollection");
 /**
 * Inversion Of Control class container.
 * @param useLocalHost If is true then use the SharePointTargetLocal otherwise the SharePointTargetOnline as target.
@@ -30,8 +30,8 @@ var SPContainer = /** @class */ (function (_super) {
         return _this;
     }
     SPContainer.prototype.declareDependencies = function () {
-        this.bind(formgen_react_1.typesForInject.IDataProviderService).to(SPDataProviderService_1.SPDataProviderService);
-        this.bind(SPDataProviderService_1.typesForInjectSP.targetInfo).toConstantValue(this.targetInfo);
+        this.bind(formgen_react_1.typesForInject.IDataProviderCollection).to(SPDataProviderServiceCollection_1.SPDataProviderServiceCollection);
+        this.bind(SPDataProviderServiceCollection_1.typesForInjectSP.targetInfo).toConstantValue(this.targetInfo);
     };
     return SPContainer;
 }(inversify_1.Container));

@@ -5,7 +5,7 @@ import { Web, PeopleManager, $REST } from 'gd-sprest';
 import { IPersonProperties, IUserResult, IUserQueryResult } from 'gd-sprest/build/mapper/types';
 import { IDropdownOption } from 'office-ui-fabric-react';
 import { Helper } from 'formgen-react/dist/Helper';
-import { KeyValue } from 'gd-sprest/build/mapper/types/complexTypes';
+import { KeyValue, SearchResult } from 'gd-sprest/build/mapper/types/complexTypes';
 
 /**
 * The Provider Service to access the User Profile from SharePoint
@@ -44,83 +44,88 @@ export class SPUserProfileProviderService implements IDataProviderService {
         return new Promise<any[]>((resolve, reject)  => {
             let operator = "eq";
             if (configParts.length == 3)
-                operator = " " + configParts[2] + " ";
+                operator = configParts[2];
+            let filterStar = filter + "*";
+
             if (isNaN(parseFloat(filter))) {
-                filter = " '" + filter + "'";
+                filterStar = "\"" + filter + "*\"";
+                filter = "\"" + filter + "\"";
             }
-            let fullFilter = ""
+
+            let kqlFilter = ""
             switch(operator) {
-                case "substringof":
-                    fullFilter = "substringof(" + filter + "," + configParts[0] + ")";
+                case "ne":
+                    kqlFilter = configParts[0] + "<>" + filter;
+                    break;
+                case "lt":
+                    kqlFilter = configParts[0] + "<" + filter;
+                    break;
+                case "gt":
+                    kqlFilter = configParts[0] + ">" + filter;
+                    break;
+                case "ge":
+                    kqlFilter = configParts[0] + ">=" + filter;
+                    break;
+                case "le":
+                    kqlFilter = configParts[0] + "<=" + filter;
+                    break;
+                case "eq":
+                    kqlFilter = configParts[0] + "=" + filter;
+                    break;
+                case "substring":
+                    kqlFilter = configParts[0] + ":" + filterStar;
                     break;
                 case "startswith":
-                    fullFilter = "startswith(" + configParts[0] + "," + filter + ")";
+                    kqlFilter = configParts[0] + "=" + filterStar;
                     break;
                 default:
-                    fullFilter = configParts[0] + " " + operator + " " + filter;                
+                    kqlFilter = configParts[0] + "=" + filter;
                     break;
             }
 
-            $REST.Web("", this.targetInfo)
-            .SiteUsers()
-            .query({
-                Filter: fullFilter,
-                Select: ["*"]
+            $REST.Search("", this.targetInfo)
+            .postquery({
+                SourceId:"B09A7990-05EA-4AF9-81EF-EDFAB16C4E31",
+                Querytext:kqlFilter,
+                TrimDuplicates:true,
+                RowLimit:limitResults
             })
-            .execute((users) => {
-                let propertyName = configParts[1];
-                let dropDonwEntries:IDropdownOption[] = [];
-                if (users && users.results && users.results.length > 0) {
-                    let promises:Promise<any>[] = [];
-                    for (let user of users.results) {
-                        let value = user[propertyName];
-                        if (value == undefined) {
-                            promises.push(this.getPropertiesFor(user.LoginName));
-                        }
-                        else {
-                            if (value != "") {
-                                dropDonwEntries.push({
-                                    key: user.LoginName,
-                                    text: value });
-                            }
-                        }
-                    }
-                    if (dropDonwEntries.length > 0) {
-                        resolve(dropDonwEntries);
-                        return;                        
-                    }
-                    else {
-                        let promises2:Promise<any>[] = [];                        
-                        Promise.all(promises).then((innerProm) => {
-                            for(let p of innerProm) {
-                                promises2.push(p.json())
-                            }
-                            Promise.all(promises2).then((allValues) => {
-                                let subPropertyName = configParts[1];
-                                let dropDonwEntries2:IDropdownOption[] = [];
-                                
-                                for(let json of allValues) {
-                                    let innerValue = json["d"][subPropertyName];
-                                    if (innerValue == undefined && json["d"]["UserProfileProperties"]) {
-                                        let resArray = json["d"]["UserProfileProperties"].results as Array<KeyValue>
-                                        let valueO = resArray.find(e => e.Key == subPropertyName);
-                                        if (valueO)
-                                            innerValue = valueO.Value;
-                                    }
-                                    if (innerValue) {
-                                        dropDonwEntries2.push({
-                                            key: json["d"]["AccountName"],
-                                            text: innerValue });
-                                    }
-                                }
-                                resolve(dropDonwEntries2);    
-                            });
-                        });
-                        return;
-                    }
+            .execute((result) => {
+                let queryResult = result["postquery"] as SearchResult;
+                let rowsObject = queryResult.PrimaryQueryResult.RelevantResults.Table.Rows["results"] as Array<Object>
+                let promises:Promise<any>[] = [];
+                for(let row of rowsObject) {
+                    let cells = row["Cells"]["results"] as KeyValue[];
+                    let accountNameCell = cells.find(c => c.Key == "AccountName");
+                    promises.push(this.getPropertiesFor(accountNameCell.Value));
                 }
-                resolve(dropDonwEntries);                
-            })
+                let promises2:Promise<any>[] = [];                        
+                Promise.all(promises).then((innerProm) => {
+                    for(let p of innerProm) {
+                        promises2.push(p.json())
+                    }
+                    Promise.all(promises2).then((allValues) => {
+                        let subPropertyName = configParts[1];
+                        let dropDonwEntries:IDropdownOption[] = [];
+                        
+                        for(let json of allValues) {
+                            let innerValue = json["d"][subPropertyName];
+                            if (innerValue == undefined && json["d"]["UserProfileProperties"]) {
+                                let resArray = json["d"]["UserProfileProperties"].results as Array<KeyValue>
+                                let valueO = resArray.find(e => e.Key == subPropertyName);
+                                if (valueO)
+                                    innerValue = valueO.Value;
+                            }
+                            if (innerValue) {
+                                dropDonwEntries.push({
+                                    key: json["d"]["AccountName"],
+                                    text: innerValue });
+                            }
+                        }
+                        resolve(dropDonwEntries);    
+                    });
+                });
+            });
         });
     }
 
@@ -241,7 +246,7 @@ export class SPUserProfileProviderService implements IDataProviderService {
         return new Promise<any[]>((resolve, reject)  => {
             if (configParts.length == 2) {
                 let groupName = configParts[1];
-                (new Web(undefined, this.targetInfo))
+                (new Web("", this.targetInfo))
                 .SiteGroups()
                 .getByName(groupName)
                 .query({
@@ -252,10 +257,19 @@ export class SPUserProfileProviderService implements IDataProviderService {
                 .execute((group) => {
                     let list:IDropdownOption[] = [];
                     if (group && group.Users && group.Users.results && group.Users.results.length > 0) {
+                        let promises:Promise<IDropdownOption>[] = [];
                         for (let user of group.Users.results) {
-                            this.fillValueFromUser(configParts, user, list);
+                            promises.push(this.fillValueFromUser(configParts, user));
                         }
-                        resolve (list);                        
+                        Promise.all(promises).then((values) => {
+                            for(let val of values) {
+                                if (val && list.find(l => l.key == val.key) == undefined ) {
+                                    list.push(val);
+                                }
+                            }
+                            resolve (list);                        
+                        })
+                        return;
                     }
                     else
                         resolve(undefined);
@@ -266,16 +280,23 @@ export class SPUserProfileProviderService implements IDataProviderService {
                 .SiteUsers()
                 .query({
                     Top: 9999,
-                    GetAllItems: true,
-                    Select: [configParts[0]]
+                    GetAllItems: true
                 })
                 .execute((users) => {
                     let list:IDropdownOption[] = [];
                     if (users && users.results && users.results.length > 0) {
+                        let promises:Promise<IDropdownOption>[] = [];
                         for (let user of users.results) {
-                            this.fillValueFromUser(configParts, user, list);
+                            promises.push(this.fillValueFromUser(configParts, user));
                         }
-                        resolve (list);                        
+                        Promise.all(promises).then((values) => {
+                            for(let val of values) {
+                                if (val && list.find(l => l.key == val.key) == undefined ) {
+                                    list.push(val);
+                                }
+                            }
+                            resolve (list);                        
+                        })
                     }
                     else
                         resolve (undefined);
@@ -290,17 +311,34 @@ export class SPUserProfileProviderService implements IDataProviderService {
      * @param user The User Data
      * @param list The List to fill
      */    
-    private fillValueFromUser(configParts:string[], user:IUserResult | IUserQueryResult, list:IDropdownOption[]) {
-        let propertyNames = configParts[0].split(",");
-        let text:string = "";
-        for(let pName of propertyNames) {
-            text = text + user[pName] ? user[pName] : "" + ","
-        }
-        if (text.length > 0)
-            text = text.substring(0, text.length -1 );
-        list.push({
-            key: user.Id,
-            text: text
+    private fillValueFromUser(configParts:string[], user:IUserResult | IUserQueryResult) : Promise<IDropdownOption> {
+        return new Promise<IDropdownOption>((resolve, reject)  => {
+            let propertyNames = configParts[0].split(",");
+            this.getPropertiesFor(user.LoginName).then((response) => {
+                let text:string = "";
+                response.json().then((props) => {
+                    for(let pName of propertyNames) {
+                        let innerValue = props["d"][pName];
+                        if (innerValue == undefined && props["d"]["UserProfileProperties"]) {
+                            let resArray = props["d"]["UserProfileProperties"].results as Array<KeyValue>
+                            let valueO = resArray.find(e => e.Key == pName);
+                            if (valueO)
+                                innerValue = valueO.Value;
+                        }
+                        text = text + innerValue ? innerValue : "" + " "
+                    }
+                    if (text && text.length > 0) {
+                        text = text.trim();
+                        resolve({
+                            key: user.LoginName,
+                            text: text
+                        });
+                    }
+                    else {
+                        resolve(undefined);
+                    }
+                })
+            })
         })
     }
 

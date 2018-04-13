@@ -17,6 +17,7 @@ var DisplayField = /** @class */ (function () {
     function DisplayField() {
         this.InternalName = "";
         this.DisplayFormat = "";
+        this.UseLanguageVariants = false;
     }
     __decorate([
         json2typescript_1.JsonProperty("internal_name", String),
@@ -26,6 +27,10 @@ var DisplayField = /** @class */ (function () {
         json2typescript_1.JsonProperty("display_format", String, true),
         __metadata("design:type", String)
     ], DisplayField.prototype, "DisplayFormat", void 0);
+    __decorate([
+        json2typescript_1.JsonProperty("use_language_variants", Boolean, true),
+        __metadata("design:type", Boolean)
+    ], DisplayField.prototype, "UseLanguageVariants", void 0);
     DisplayField = __decorate([
         json2typescript_1.JsonObject
     ], DisplayField);

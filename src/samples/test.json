@@ -106,7 +106,7 @@
 			},{
                 "id": "dropdown",
 				"title": "DropDown",
-				"dataprovider_list_configkeys": [ "SPUserProfileProvider.[testform.UserName].LoginName.LastName.substringof" ],
+				"dataprovider_list_configkeys": [ "SPUserProfileProvider.DisplayName" ],
                 "control_type": [ "DropDown" ],
                 "label_position": [ "Top"]
 			},{
