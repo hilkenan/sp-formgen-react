@@ -6,7 +6,7 @@ export declare class SharePointTargetOnline implements ITargetInfo {
     static url: string;
 }
 /**
-* Target that use http://localhost:4323
+* Target that use https://localhost:4323
 */
 export declare class SharePointTargetLocal implements ITargetInfo {
     static url: string;
