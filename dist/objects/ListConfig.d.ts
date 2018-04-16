@@ -1,5 +1,5 @@
-import { DisplayField } from "src/objects/DisplayField";
 import { ChildConfig } from "./ChildConfig";
+import { DisplayField } from "./DisplayField";
 /**
  * Definition for the configuration of an sharepoint list
  */

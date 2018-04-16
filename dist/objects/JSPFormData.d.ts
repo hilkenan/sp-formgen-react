@@ -1,5 +1,5 @@
 import { JFormData } from "formgen-react";
-import { SPConfig } from "src/objects/SPConfig";
+import { SPConfig } from "./SPConfig";
 /**
  * Form Definition for SharePoint fomrs
  */

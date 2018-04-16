@@ -10,8 +10,8 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var json2typescript_1 = require("json2typescript");
-var ListConfig_1 = require("src/objects/ListConfig");
 var ObjectTranslate_1 = require("formgen-react/dist/objects/ObjectTranslate");
+var ListConfig_1 = require("./ListConfig");
 /**
  * Definition for the a SharePoint List
  */

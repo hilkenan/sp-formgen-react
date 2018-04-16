@@ -1,6 +1,6 @@
 import { JFormData } from "formgen-react";
 import { JsonProperty, JsonObject } from "json2typescript";
-import { SPConfig } from "src/objects/SPConfig";
+import { SPConfig } from "./SPConfig";
 
 /**
  * Form Definition for SharePoint fomrs

@@ -1,5 +1,5 @@
-import { ListConfig } from "src/objects/ListConfig";
 import { ObjectTranslate } from "formgen-react/dist/objects/ObjectTranslate";
+import { ListConfig } from "./ListConfig";
 /**
  * Definition for the a SharePoint List
  */

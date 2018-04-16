@@ -10,7 +10,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var json2typescript_1 = require("json2typescript");
-var List_1 = require("src/objects/List");
+var List_1 = require("./List");
 /**
  * Config Definition for SharePoint Config Lists
  */

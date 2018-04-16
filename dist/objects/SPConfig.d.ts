@@ -1,4 +1,4 @@
-import { List } from "src/objects/List";
+import { List } from "./List";
 /**
  * Config Definition for SharePoint Config Lists
  */

@@ -21,7 +21,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var formgen_react_1 = require("formgen-react");
 var json2typescript_1 = require("json2typescript");
-var SPConfig_1 = require("src/objects/SPConfig");
+var SPConfig_1 = require("./SPConfig");
 /**
  * Form Definition for SharePoint fomrs
  */

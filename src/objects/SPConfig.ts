@@ -1,5 +1,6 @@
 import { JsonProperty, JsonObject } from "json2typescript";
-import { List } from "src/objects/List";
+import { List } from "./List";
+
 
 /**
  * Config Definition for SharePoint Config Lists
