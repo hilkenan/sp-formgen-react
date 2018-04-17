@@ -14,7 +14,7 @@ import { TemplateHelper } from '../objects/TemplateHelper';
 export class SPForm extends BaseComponent<ISPFormProps, IFormState> implements IGenericForm<JSPFormData> {
 
     public render(): JSX.Element {
-        let formTitle = TemplateHelper.getTemplatedTitle(this.props.jsonFormData);
+        let formTitle = this.props.showTemplateTitle ? TemplateHelper.getTemplatedTitle(this.props.jsonFormData) : undefined;
         let inputs:SPFormInputs = new SPFormInputs();
         let spContainer = new SPContainer(this.props.useLocalHost ? this.props.useLocalHost : false);
         return(

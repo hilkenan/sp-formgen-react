@@ -5,7 +5,7 @@ import { SPForm } from './form/SPForm';
 var jsonForm = require('./samples/test.json');
 
 ReactDOM.render(
-  <SPForm jsonFormData={ jsonForm } useLocalHost={true}  />,
+  <SPForm jsonFormData={ jsonForm } useLocalHost={true} showTemplateTitle={false}  />,
   document.getElementById('root') as HTMLElement
 );
 registerServiceWorker();

@@ -34,7 +34,7 @@ var SPForm = /** @class */ (function (_super) {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     SPForm.prototype.render = function () {
-        var formTitle = TemplateHelper_1.TemplateHelper.getTemplatedTitle(this.props.jsonFormData);
+        var formTitle = this.props.showTemplateTitle ? TemplateHelper_1.TemplateHelper.getTemplatedTitle(this.props.jsonFormData) : undefined;
         var inputs = new SPFormInputs_1.SPFormInputs();
         var spContainer = new inversify_config_1.SPContainer(this.props.useLocalHost ? this.props.useLocalHost : false);
         return (React.createElement(formgen_react_1.GenericForm, __assign({ formTitle: formTitle }, this.props, { container: spContainer, formType: JSPFormData_1.JSPFormData, formInputs: inputs })));
