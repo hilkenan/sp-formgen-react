@@ -8,6 +8,16 @@
 		 "fr": "Test FR",
          "it": "Test IT"
 	},
+	"titel_template": {
+		"template": "Das ist ein title [onelevel] mit Test",
+		"template_trans": {
+			"de" : "Das ist ein title [onelevel] mit Test DE"
+		},
+		"variables": [{
+				"name": "onelevel",
+				"json_path": "$..controls[?(@.id=='UserName')].value"
+			}]
+	},
 	"sp_config": {
 		"lists": [{
 			"key": "onelevel",
@@ -79,7 +89,8 @@
 				"id": "UserName",
 				"title": "User Namen",
 				"dataprovider_value_configkey": "SPUserProfileProvider.reports.LastName",
-				"control_type": [ "Textbox" ]
+				"control_type": [ "Textbox" ],
+				"value": "Test A"
 			},{
                 "id": "uploadForm",
 				"title": "Dateien",

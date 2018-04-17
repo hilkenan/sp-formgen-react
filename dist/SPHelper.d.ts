@@ -43,7 +43,7 @@ export declare class SPHelper {
      * @param search the search string
      * @param replacement the replacment string
      */
-    private replaceAll(target, search, replacement);
+    static replaceAll(target: string, search: string, replacement: string): string;
     /**
      * Collect the text for the display
      * @param item The ListItem Result to collect texts from.

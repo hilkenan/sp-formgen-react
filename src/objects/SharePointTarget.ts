@@ -13,5 +13,3 @@ export class SharePointTargetOnline implements ITargetInfo {
 export class SharePointTargetLocal implements ITargetInfo {
     static url:string = "https://localhost:4323";
 }
-
-

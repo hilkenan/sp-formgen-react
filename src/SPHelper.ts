@@ -95,7 +95,7 @@ export class SPHelper {
      * @param search the search string
      * @param replacement the replacment string
      */                 
-    private replaceAll(target:string, search:string, replacement: string) {
+    public static replaceAll(target:string, search:string, replacement: string) {
         return target.split(search).join(replacement);
     }
 
@@ -117,7 +117,7 @@ export class SPHelper {
             
             let fieldValue = item[fieldNaame];
             if (fieldConfig.DisplayFormat) {
-                fieldValue = this.replaceAll(fieldConfig.DisplayFormat, "{fieldValue}",  fieldValue);
+                fieldValue = SPHelper.replaceAll(fieldConfig.DisplayFormat, "{fieldValue}",  fieldValue);
             }
             texts.push(fieldValue)
         }
@@ -125,7 +125,7 @@ export class SPHelper {
         if (config.DisplayFormat) {
             text = config.DisplayFormat;
             for(let i = 0;i < texts.length; i++) {
-                text = this.replaceAll(text, "{texts[" + i + "]}",  texts[i]);
+                text = SPHelper.replaceAll(text, "{texts[" + i + "]}",  texts[i]);
             }
         }
         else

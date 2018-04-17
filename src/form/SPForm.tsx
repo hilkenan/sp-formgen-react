@@ -6,6 +6,7 @@ import { SPFormInputs } from './SPFormInputs';
 import { JSPFormData } from '../objects/JSPFormData';
 import { SPContainer } from '../objects/inversify.config';
 import { ISPFormProps } from './ISPForm.types';
+import { TemplateHelper } from '../objects/TemplateHelper';
 
 /**
  * The main SharePoint Form Control that renders the Control Tree
@@ -13,10 +14,12 @@ import { ISPFormProps } from './ISPForm.types';
 export class SPForm extends BaseComponent<ISPFormProps, IFormState> implements IGenericForm<JSPFormData> {
 
     public render(): JSX.Element {
+        let formTitle = TemplateHelper.getTemplatedTitle(this.props.jsonFormData);
         let inputs:SPFormInputs = new SPFormInputs();
         let spContainer = new SPContainer(this.props.useLocalHost ? this.props.useLocalHost : false);
         return(
             <GenericForm
+                formTitle={ formTitle }
                 {... this.props }
                 container={ spContainer }
                 formType={ JSPFormData }

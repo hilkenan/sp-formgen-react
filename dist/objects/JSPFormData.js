@@ -22,6 +22,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var formgen_react_1 = require("formgen-react");
 var json2typescript_1 = require("json2typescript");
 var SPConfig_1 = require("./SPConfig");
+var TitleTemplate_1 = require("./TitleTemplate");
 /**
  * Form Definition for SharePoint fomrs
  */
@@ -30,12 +31,17 @@ var JSPFormData = /** @class */ (function (_super) {
     function JSPFormData() {
         var _this = _super !== null && _super.apply(this, arguments) || this;
         _this.SPConfig = undefined;
+        _this.TitleTemplate = undefined;
         return _this;
     }
     __decorate([
         json2typescript_1.JsonProperty("sp_config", SPConfig_1.SPConfig, true),
         __metadata("design:type", SPConfig_1.SPConfig)
     ], JSPFormData.prototype, "SPConfig", void 0);
+    __decorate([
+        json2typescript_1.JsonProperty("titel_template", TitleTemplate_1.TitleTemplate, true),
+        __metadata("design:type", TitleTemplate_1.TitleTemplate)
+    ], JSPFormData.prototype, "TitleTemplate", void 0);
     JSPFormData = __decorate([
         json2typescript_1.JsonObject
     ], JSPFormData);
