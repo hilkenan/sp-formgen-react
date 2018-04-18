@@ -22,7 +22,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var formgen_react_1 = require("formgen-react");
 var json2typescript_1 = require("json2typescript");
 var SPConfig_1 = require("./SPConfig");
-var TitleTemplate_1 = require("./TitleTemplate");
+var TransConverter_1 = require("formgen-react/dist/objects/jsonConverters/TransConverter");
 /**
  * Form Definition for SharePoint fomrs
  */
@@ -31,7 +31,8 @@ var JSPFormData = /** @class */ (function (_super) {
     function JSPFormData() {
         var _this = _super !== null && _super.apply(this, arguments) || this;
         _this.SPConfig = undefined;
-        _this.TitleTemplate = undefined;
+        _this.Message = "";
+        _this.MessageTranslates = undefined;
         return _this;
     }
     __decorate([
@@ -39,9 +40,13 @@ var JSPFormData = /** @class */ (function (_super) {
         __metadata("design:type", SPConfig_1.SPConfig)
     ], JSPFormData.prototype, "SPConfig", void 0);
     __decorate([
-        json2typescript_1.JsonProperty("titel_template", TitleTemplate_1.TitleTemplate, true),
-        __metadata("design:type", TitleTemplate_1.TitleTemplate)
-    ], JSPFormData.prototype, "TitleTemplate", void 0);
+        json2typescript_1.JsonProperty("template", String, true),
+        __metadata("design:type", String)
+    ], JSPFormData.prototype, "Message", void 0);
+    __decorate([
+        json2typescript_1.JsonProperty("template_trans", TransConverter_1.TransConverter, true),
+        __metadata("design:type", Array)
+    ], JSPFormData.prototype, "MessageTranslates", void 0);
     JSPFormData = __decorate([
         json2typescript_1.JsonObject
     ], JSPFormData);

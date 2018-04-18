@@ -1,10 +1,11 @@
 import { JFormData } from "formgen-react";
 import { SPConfig } from "./SPConfig";
-import { TitleTemplate } from "./TitleTemplate";
+import { Translate } from "formgen-react/dist/objects/jsonConverters/TransConverter";
 /**
  * Form Definition for SharePoint fomrs
  */
 export declare class JSPFormData extends JFormData {
     SPConfig: SPConfig;
-    TitleTemplate: TitleTemplate;
+    Message: string;
+    MessageTranslates?: Translate[];
 }

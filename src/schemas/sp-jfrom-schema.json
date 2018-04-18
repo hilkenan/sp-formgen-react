@@ -15,37 +15,13 @@
 		 "theme": {
 			 "type": "string"
 		},
-		"titel_template": {
-			"type": "object",
-			"properties": {
-				"template": {
-					"type": "string"
-				},
-				"template_trans": {
-					"$ref": "./translation-schema.json"
-				},
-				"variables": {
-					"type": "array",
-					"minItems": 0,
-					"items": {
-						"type": "object",
-						"properties": {
-							"name": {
-								"type": "string"
-							},
-							"json_path": {
-								"type": "string"
-							}
-						},
-						"required": [ "name", "json_path" ],
-			 			"additionalProperties": false
-				   }
-				}
-			},
-			"required": [ "template" ],
-			"additionalProperties": false
+		"template": {
+			"type": "string"
 		},
-		 "title_trans": {
+		"template_trans": {
+			"$ref": "./translation-schema.json"
+		},
+		"title_trans": {
 			"$ref": "./translation-schema.json"
 		},
 		 "rows": {

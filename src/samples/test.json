@@ -8,15 +8,9 @@
 		 "fr": "Test FR",
          "it": "Test IT"
 	},
-	"titel_template": {
-		"template": "Das ist ein title [onelevel] mit Test",
-		"template_trans": {
-			"de" : "Das ist ein title [onelevel] mit Test DE"
-		},
-		"variables": [{
-				"name": "onelevel",
-				"json_path": "$..controls[?(@.id=='UserName')].value"
-			}]
+	"template": "Das ist ein title [testform.UserName] mit Test",
+	"template_trans": {
+			"de" : "Das ist ein title [testform.UserName] mit Test DE"
 	},
 	"sp_config": {
 		"lists": [{
