@@ -8,12 +8,14 @@ import { List, SPConfig } from ".";
  */
 export declare class SPHelper {
     private targetInfo;
+    private serverRelativeUrl;
     private camlQueries;
     /**
      * Takes the target Info
+     * @param serverRelativeUrl The server url from the request.
      * @param targetInfo Target to use (local or current context)
      */
-    constructor(targetInfo: ITargetInfo);
+    constructor(serverRelativeUrl: string, targetInfo: ITargetInfo);
     /**
      * Get the correct List View XML for the configured list settings.
      * @param formData the Current Form Data object

@@ -6,20 +6,23 @@ import { IPersonProperties, IUserResult, IUserQueryResult } from 'gd-sprest/buil
 import { IDropdownOption } from 'office-ui-fabric-react';
 import { Helper } from 'formgen-react/dist/Helper';
 import { KeyValue, SearchResult } from 'gd-sprest/build/mapper/types/complexTypes';
+import { SPHelper } from '..';
 
 /**
 * The Provider Service to access the User Profile from SharePoint
 */  
 export class SPUserProfileProviderService implements IDataProviderService {
     private targetInfo: ITargetInfo;
+    private spHelper:SPHelper;
 
     public providerServiceKey = "SPUserProfileProvider"
 
     /**
      * Takes the target Info as parmeter.
      */
-    public constructor(targetInfo: ITargetInfo) {
+    public constructor(serverRelativeUrl:string, targetInfo: ITargetInfo) {
         this.targetInfo = targetInfo;
+        this.spHelper = new SPHelper(serverRelativeUrl, targetInfo);
     }
 
     /**
@@ -42,6 +45,8 @@ export class SPUserProfileProviderService implements IDataProviderService {
         if (configParts.length < 2 )
             throw "At least the Provider, the name of the property(properties) to receive, and the filter Prpoerty has to be defined e.g. SPUserProfileProvider.AccountName to get the account name of the filtered User"
         return new Promise<any[]>((resolve, reject)  => {
+            let webUrl = this.spHelper.getCorrectWebUrl("");
+            
             let operator = "eq";
             if (configParts.length == 3)
                 operator = configParts[2];
@@ -83,7 +88,7 @@ export class SPUserProfileProviderService implements IDataProviderService {
                     break;
             }
 
-            $REST.Search("", this.targetInfo)
+            $REST.Search(webUrl, this.targetInfo)
             .postquery({
                 SourceId:"B09A7990-05EA-4AF9-81EF-EDFAB16C4E31",
                 Querytext:kqlFilter,
@@ -138,10 +143,11 @@ export class SPUserProfileProviderService implements IDataProviderService {
      * @returns The full path where the file was stored.
      */
     addFile(configKey: string, controlConfig: Control, fileName: string, fileContent: any): string {
+        let webUrl = this.spHelper.getCorrectWebUrl("");
         let peopleManager = new PeopleManager(this.targetInfo);
         peopleManager.setMyProfilePicture(fileContent)
         .executeAndWait();
-        let user = (new Web(undefined, this.targetInfo))
+        let user = (new Web(webUrl, this.targetInfo))
             .CurrentUser()
             .executeAndWait();
         
@@ -168,7 +174,8 @@ export class SPUserProfileProviderService implements IDataProviderService {
      */
     private getPropertiesFor(account:string) : Promise<Response> {
         account = encodeURIComponent(account);
-        let apiUrl = this.targetInfo.url + "/_api/sp.userprofiles.peoplemanager/getPropertiesFor(accountName=@v)?@v='" + account + "'";
+        let webUrl = this.spHelper.getCorrectWebUrl("");
+        let apiUrl = webUrl + "/_api/sp.userprofiles.peoplemanager/getPropertiesFor(accountName=@v)?@v='" + account + "'";
         return fetch(apiUrl);
     }
 
@@ -244,9 +251,11 @@ export class SPUserProfileProviderService implements IDataProviderService {
         if (configParts.length == 0)
             throw "At least the Provider and the name of the property has to be defined e.g. SPUserProfileProvider.AccountName to get all site users account name"
         return new Promise<any[]>((resolve, reject)  => {
+            let webUrl = this.spHelper.getCorrectWebUrl("");
             if (configParts.length == 2) {
                 let groupName = configParts[1];
-                (new Web("", this.targetInfo))
+
+                (new Web(webUrl, this.targetInfo))
                 .SiteGroups()
                 .getByName(groupName)
                 .query({
@@ -276,7 +285,7 @@ export class SPUserProfileProviderService implements IDataProviderService {
                 });
             }
             else {
-                (new Web(undefined, this.targetInfo))
+                (new Web(webUrl, this.targetInfo))
                 .SiteUsers()
                 .query({
                     Top: 9999,
@@ -358,7 +367,8 @@ export class SPUserProfileProviderService implements IDataProviderService {
         if (configParts.length == 0)
             throw "At least the Provider and the name of the property has to be defined e.g. SPUserProfileProvider.AccountName to get the account name of the current User"
         return new Promise<any>((resolve, reject)  => {
-            (new Web(undefined, this.targetInfo))
+            let webUrl = this.spHelper.getCorrectWebUrl("");
+            (new Web(webUrl, this.targetInfo))
             .CurrentUser()
             .query({
                 Select: ["*"]

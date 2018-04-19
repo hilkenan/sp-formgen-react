@@ -7,10 +7,12 @@ var gd_sprest_1 = require("gd-sprest");
 var SPHelper = /** @class */ (function () {
     /**
      * Takes the target Info
+     * @param serverRelativeUrl The server url from the request.
      * @param targetInfo Target to use (local or current context)
      */
-    function SPHelper(targetInfo) {
+    function SPHelper(serverRelativeUrl, targetInfo) {
         this.targetInfo = targetInfo;
+        this.serverRelativeUrl = serverRelativeUrl;
     }
     /**
      * Get the correct List View XML for the configured list settings.
@@ -34,12 +36,12 @@ var SPHelper = /** @class */ (function () {
      * @param webUrl The Url relative to the base url
      */
     SPHelper.prototype.getCorrectWebUrl = function (webUrl) {
-        if (this.targetInfo.url && webUrl)
-            return this.targetInfo.url + webUrl;
+        if (this.targetInfo.url && (webUrl || webUrl == ""))
+            return this.targetInfo.url + this.serverRelativeUrl + webUrl;
         else if (!this.targetInfo.url && !webUrl)
-            return undefined;
+            return this.serverRelativeUrl;
         else
-            return webUrl;
+            return this.serverRelativeUrl + webUrl;
     };
     /**
      * Get the correct web url from the list.

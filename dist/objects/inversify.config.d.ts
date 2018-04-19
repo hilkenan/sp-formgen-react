@@ -5,6 +5,7 @@ import { Container } from 'inversify';
 */
 export declare class SPContainer extends Container {
     private targetInfo;
-    constructor(useLocalHost: boolean);
+    private serverRelativeUrl;
+    constructor(useLocalHost: boolean, serverRelativeUrl: string);
     declareDependencies(): void;
 }

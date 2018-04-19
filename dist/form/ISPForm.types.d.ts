@@ -8,4 +8,6 @@ export interface ISPFormProps extends IFormProps<JSPFormData> {
     useLocalHost?: boolean;
     /** When set to true then show the templated title string insed of the static title */
     showTemplateTitle?: boolean;
+    /** Defines the server Relative url to the root web site */
+    serverRelativeUrl: string;
 }

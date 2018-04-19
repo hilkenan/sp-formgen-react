@@ -11,12 +11,16 @@ import { typesForInjectSP, SPDataProviderServiceCollection } from '../SPDataProv
 */
 export class SPContainer extends Container {
     private targetInfo: ITargetInfo;
-    constructor(useLocalHost: boolean) {
+    private serverRelativeUrl: string;
+
+    constructor(useLocalHost: boolean, serverRelativeUrl: string) {
       super();
       if (useLocalHost)
         this.targetInfo = SharePointTargetLocal;
       else
         this.targetInfo = SharePointTargetOnline;
+
+      this.serverRelativeUrl = serverRelativeUrl;
 
       this.declareDependencies();
     }
@@ -24,5 +28,6 @@ export class SPContainer extends Container {
     declareDependencies() {
       this.bind<IDataProviderCollection>(typesForInject.IDataProviderCollection).to(SPDataProviderServiceCollection);
       this.bind<ITargetInfo>(typesForInjectSP.targetInfo).toConstantValue(this.targetInfo);
+      this.bind<string>(typesForInjectSP.serverRelativeUrl).toConstantValue(this.serverRelativeUrl);
     }
 }

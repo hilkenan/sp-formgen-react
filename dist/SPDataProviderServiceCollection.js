@@ -18,7 +18,10 @@ var SPUserProfileProviderService_1 = require("./objects/SPUserProfileProviderSer
 /**
  * The Types to use for injection
  */
-exports.typesForInjectSP = { targetInfo: "targetInfo" };
+exports.typesForInjectSP = {
+    targetInfo: "targetInfo",
+    serverRelativeUrl: "serverRelativeUrl"
+};
 /**
  * The colleciton of all Service providers for Sharepoint:
  * List Provider
@@ -29,17 +32,17 @@ var SPDataProviderServiceCollection = /** @class */ (function () {
     /**
      * Takes the target Info as parmeter.
      */
-    function SPDataProviderServiceCollection(targetInfo) {
+    function SPDataProviderServiceCollection(targetInfo, serverRelativeUrl) {
         this.providers = [];
-        var spListProvider = new SPListProviderService_1.SPListProviderService(targetInfo);
-        var spUserProfileProvider = new SPUserProfileProviderService_1.SPUserProfileProviderService(targetInfo);
+        var spListProvider = new SPListProviderService_1.SPListProviderService(serverRelativeUrl, targetInfo);
+        var spUserProfileProvider = new SPUserProfileProviderService_1.SPUserProfileProviderService(serverRelativeUrl, targetInfo);
         this.providers.push(spListProvider);
         this.providers.push(spUserProfileProvider);
     }
     SPDataProviderServiceCollection = __decorate([
         inversify_1.injectable(),
-        __param(0, inversify_1.inject(exports.typesForInjectSP.targetInfo)),
-        __metadata("design:paramtypes", [Object])
+        __param(0, inversify_1.inject(exports.typesForInjectSP.targetInfo)), __param(1, inversify_1.inject(exports.typesForInjectSP.serverRelativeUrl)),
+        __metadata("design:paramtypes", [Object, String])
     ], SPDataProviderServiceCollection);
     return SPDataProviderServiceCollection;
 }());

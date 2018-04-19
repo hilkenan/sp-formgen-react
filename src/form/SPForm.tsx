@@ -16,7 +16,7 @@ export class SPForm extends BaseComponent<ISPFormProps, IFormState> implements I
     public render(): JSX.Element {
         let formTitle = this.props.showTemplateTitle ? TemplateHelper.getTemplatedTitle(this.props.jsonFormData) : undefined;
         let inputs:SPFormInputs = new SPFormInputs();
-        let spContainer = new SPContainer(this.props.useLocalHost ? this.props.useLocalHost : false);
+        let spContainer = new SPContainer(this.props.useLocalHost ? this.props.useLocalHost : false, this.props.serverRelativeUrl);
         return(
             <GenericForm
                 formTitle={ formTitle }

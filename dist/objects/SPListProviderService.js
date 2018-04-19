@@ -11,10 +11,10 @@ var SPListProviderService = /** @class */ (function () {
     /**
      * Takes the target Info as parmeter.
      */
-    function SPListProviderService(targetInfo) {
+    function SPListProviderService(serverRelativeUrl, targetInfo) {
         this.providerServiceKey = "SPListProvider";
         this.targetInfo = targetInfo;
-        this.spHelper = new SPHelper_1.SPHelper(targetInfo);
+        this.spHelper = new SPHelper_1.SPHelper(serverRelativeUrl, targetInfo);
     }
     /**
      *Get from the config key the List Config

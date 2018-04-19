@@ -11,14 +11,17 @@ import { List, SPConfig } from ".";
  */
 export class SPHelper {
     private targetInfo: ITargetInfo;
+    private serverRelativeUrl: string;
     private camlQueries:ViewItem[];
     
     /**
      * Takes the target Info
+     * @param serverRelativeUrl The server url from the request.
      * @param targetInfo Target to use (local or current context)
      */
-    public constructor(targetInfo: ITargetInfo) {
+    public constructor(serverRelativeUrl: string, targetInfo: ITargetInfo) {
         this.targetInfo = targetInfo;
+        this.serverRelativeUrl = serverRelativeUrl;
     }
 
     /**
@@ -45,12 +48,12 @@ export class SPHelper {
      * @param webUrl The Url relative to the base url
      */                 
     public getCorrectWebUrl(webUrl:string): string {
-        if (this.targetInfo.url && webUrl)
-            return this.targetInfo.url + webUrl;
+        if (this.targetInfo.url && (webUrl || webUrl == ""))
+            return this.targetInfo.url + this.serverRelativeUrl + webUrl;
         else if (!this.targetInfo.url && !webUrl)
-            return undefined;
+            return this.serverRelativeUrl;
         else
-            return webUrl;
+            return this.serverRelativeUrl + webUrl;
     }
 
     /**

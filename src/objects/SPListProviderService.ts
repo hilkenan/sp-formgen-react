@@ -23,9 +23,9 @@ export class SPListProviderService implements IDataProviderService {
     /**
      * Takes the target Info as parmeter.
      */
-    public constructor(targetInfo: ITargetInfo) {
+    public constructor(serverRelativeUrl: string, targetInfo: ITargetInfo) {
         this.targetInfo = targetInfo;
-        this.spHelper = new SPHelper(targetInfo)
+        this.spHelper = new SPHelper(serverRelativeUrl, targetInfo)
     }
 
     /**

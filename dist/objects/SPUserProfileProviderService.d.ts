@@ -6,11 +6,12 @@ import { ITargetInfo } from 'gd-sprest/build/utils/types';
 */
 export declare class SPUserProfileProviderService implements IDataProviderService {
     private targetInfo;
+    private spHelper;
     providerServiceKey: string;
     /**
      * Takes the target Info as parmeter.
      */
-    constructor(targetInfo: ITargetInfo);
+    constructor(serverRelativeUrl: string, targetInfo: ITargetInfo);
     /**
      * The SharePoint Form Data
      */

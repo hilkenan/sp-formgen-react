@@ -11,7 +11,7 @@ export declare class SPListProviderService implements IDataProviderService {
     /**
      * Takes the target Info as parmeter.
      */
-    constructor(targetInfo: ITargetInfo);
+    constructor(serverRelativeUrl: string, targetInfo: ITargetInfo);
     /**
      * The SharePoint Form Data
      */

@@ -6,6 +6,7 @@ import { ITargetInfo } from "gd-sprest/build/utils/types";
  */
 export declare const typesForInjectSP: {
     targetInfo: string;
+    serverRelativeUrl: string;
 };
 /**
  * The colleciton of all Service providers for Sharepoint:
@@ -17,6 +18,6 @@ export declare class SPDataProviderServiceCollection implements IDataProviderCol
     /**
      * Takes the target Info as parmeter.
      */
-    constructor(targetInfo: ITargetInfo);
+    constructor(targetInfo: ITargetInfo, serverRelativeUrl: string);
     providers: IDataProviderService[];
 }

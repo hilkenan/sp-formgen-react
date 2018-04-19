@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var gd_sprest_1 = require("gd-sprest");
 var Helper_1 = require("formgen-react/dist/Helper");
+var __1 = require("..");
 /**
 * The Provider Service to access the User Profile from SharePoint
 */
@@ -9,9 +10,10 @@ var SPUserProfileProviderService = /** @class */ (function () {
     /**
      * Takes the target Info as parmeter.
      */
-    function SPUserProfileProviderService(targetInfo) {
+    function SPUserProfileProviderService(serverRelativeUrl, targetInfo) {
         this.providerServiceKey = "SPUserProfileProvider";
         this.targetInfo = targetInfo;
+        this.spHelper = new __1.SPHelper(serverRelativeUrl, targetInfo);
     }
     /**
      * Retrieve list data from the store filtered and optional limited with count of result items
@@ -28,6 +30,7 @@ var SPUserProfileProviderService = /** @class */ (function () {
         if (configParts.length < 2)
             throw "At least the Provider, the name of the property(properties) to receive, and the filter Prpoerty has to be defined e.g. SPUserProfileProvider.AccountName to get the account name of the filtered User";
         return new Promise(function (resolve, reject) {
+            var webUrl = _this.spHelper.getCorrectWebUrl("");
             var operator = "eq";
             if (configParts.length == 3)
                 operator = configParts[2];
@@ -66,7 +69,7 @@ var SPUserProfileProviderService = /** @class */ (function () {
                     kqlFilter = configParts[0] + "=" + filter;
                     break;
             }
-            gd_sprest_1.$REST.Search("", _this.targetInfo)
+            gd_sprest_1.$REST.Search(webUrl, _this.targetInfo)
                 .postquery({
                 SourceId: "B09A7990-05EA-4AF9-81EF-EDFAB16C4E31",
                 Querytext: kqlFilter,
@@ -123,10 +126,11 @@ var SPUserProfileProviderService = /** @class */ (function () {
      * @returns The full path where the file was stored.
      */
     SPUserProfileProviderService.prototype.addFile = function (configKey, controlConfig, fileName, fileContent) {
+        var webUrl = this.spHelper.getCorrectWebUrl("");
         var peopleManager = new gd_sprest_1.PeopleManager(this.targetInfo);
         peopleManager.setMyProfilePicture(fileContent)
             .executeAndWait();
-        var user = (new gd_sprest_1.Web(undefined, this.targetInfo))
+        var user = (new gd_sprest_1.Web(webUrl, this.targetInfo))
             .CurrentUser()
             .executeAndWait();
         var property = peopleManager.getUserProfilePropertyFor(user.LoginName, "PictureUrl")
@@ -150,7 +154,8 @@ var SPUserProfileProviderService = /** @class */ (function () {
      */
     SPUserProfileProviderService.prototype.getPropertiesFor = function (account) {
         account = encodeURIComponent(account);
-        var apiUrl = this.targetInfo.url + "/_api/sp.userprofiles.peoplemanager/getPropertiesFor(accountName=@v)?@v='" + account + "'";
+        var webUrl = this.spHelper.getCorrectWebUrl("");
+        var apiUrl = webUrl + "/_api/sp.userprofiles.peoplemanager/getPropertiesFor(accountName=@v)?@v='" + account + "'";
         return fetch(apiUrl);
     };
     /**
@@ -228,9 +233,10 @@ var SPUserProfileProviderService = /** @class */ (function () {
         if (configParts.length == 0)
             throw "At least the Provider and the name of the property has to be defined e.g. SPUserProfileProvider.AccountName to get all site users account name";
         return new Promise(function (resolve, reject) {
+            var webUrl = _this.spHelper.getCorrectWebUrl("");
             if (configParts.length == 2) {
                 var groupName = configParts[1];
-                (new gd_sprest_1.Web("", _this.targetInfo))
+                (new gd_sprest_1.Web(webUrl, _this.targetInfo))
                     .SiteGroups()
                     .getByName(groupName)
                     .query({
@@ -265,7 +271,7 @@ var SPUserProfileProviderService = /** @class */ (function () {
                 });
             }
             else {
-                (new gd_sprest_1.Web(undefined, _this.targetInfo))
+                (new gd_sprest_1.Web(webUrl, _this.targetInfo))
                     .SiteUsers()
                     .query({
                     Top: 9999,
@@ -356,7 +362,8 @@ var SPUserProfileProviderService = /** @class */ (function () {
         if (configParts.length == 0)
             throw "At least the Provider and the name of the property has to be defined e.g. SPUserProfileProvider.AccountName to get the account name of the current User";
         return new Promise(function (resolve, reject) {
-            (new gd_sprest_1.Web(undefined, _this.targetInfo))
+            var webUrl = _this.spHelper.getCorrectWebUrl("");
+            (new gd_sprest_1.Web(webUrl, _this.targetInfo))
                 .CurrentUser()
                 .query({
                 Select: ["*"]

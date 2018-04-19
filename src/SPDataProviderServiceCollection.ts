@@ -8,7 +8,10 @@ import { SPUserProfileProviderService } from "./objects/SPUserProfileProviderSer
 /**
  * The Types to use for injection
  */
-export const typesForInjectSP = { targetInfo: "targetInfo" };
+export const typesForInjectSP = { 
+    targetInfo: "targetInfo",
+    serverRelativeUrl: "serverRelativeUrl"
+};
 
 /**
  * The colleciton of all Service providers for Sharepoint:
@@ -21,9 +24,9 @@ export class SPDataProviderServiceCollection implements IDataProviderCollection 
     /**
      * Takes the target Info as parmeter.
      */
-    public constructor(@inject(typesForInjectSP.targetInfo) targetInfo: ITargetInfo) {
-        let spListProvider = new SPListProviderService(targetInfo);
-        let spUserProfileProvider = new SPUserProfileProviderService(targetInfo);
+    public constructor(@inject(typesForInjectSP.targetInfo) targetInfo: ITargetInfo, @inject(typesForInjectSP.serverRelativeUrl) serverRelativeUrl: string) {
+        let spListProvider = new SPListProviderService(serverRelativeUrl, targetInfo);
+        let spUserProfileProvider = new SPUserProfileProviderService(serverRelativeUrl, targetInfo);
         this.providers.push(spListProvider);
         this.providers.push(spUserProfileProvider);        
     }

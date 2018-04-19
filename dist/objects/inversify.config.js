@@ -20,18 +20,20 @@ var SPDataProviderServiceCollection_1 = require("../SPDataProviderServiceCollect
 */
 var SPContainer = /** @class */ (function (_super) {
     __extends(SPContainer, _super);
-    function SPContainer(useLocalHost) {
+    function SPContainer(useLocalHost, serverRelativeUrl) {
         var _this = _super.call(this) || this;
         if (useLocalHost)
             _this.targetInfo = SharePointTarget_1.SharePointTargetLocal;
         else
             _this.targetInfo = SharePointTarget_1.SharePointTargetOnline;
+        _this.serverRelativeUrl = serverRelativeUrl;
         _this.declareDependencies();
         return _this;
     }
     SPContainer.prototype.declareDependencies = function () {
         this.bind(formgen_react_1.typesForInject.IDataProviderCollection).to(SPDataProviderServiceCollection_1.SPDataProviderServiceCollection);
         this.bind(SPDataProviderServiceCollection_1.typesForInjectSP.targetInfo).toConstantValue(this.targetInfo);
+        this.bind(SPDataProviderServiceCollection_1.typesForInjectSP.serverRelativeUrl).toConstantValue(this.serverRelativeUrl);
     };
     return SPContainer;
 }(inversify_1.Container));

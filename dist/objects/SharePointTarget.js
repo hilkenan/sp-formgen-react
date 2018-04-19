@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var SharePointTargetOnline = /** @class */ (function () {
     function SharePointTargetOnline() {
     }
-    SharePointTargetOnline.url = null;
+    SharePointTargetOnline.url = undefined;
     return SharePointTargetOnline;
 }());
 exports.SharePointTargetOnline = SharePointTargetOnline;
@@ -16,7 +16,7 @@ exports.SharePointTargetOnline = SharePointTargetOnline;
 var SharePointTargetLocal = /** @class */ (function () {
     function SharePointTargetLocal() {
     }
-    SharePointTargetLocal.url = "http://localhost:4323";
+    SharePointTargetLocal.url = "http://localhost:4323/";
     return SharePointTargetLocal;
 }());
 exports.SharePointTargetLocal = SharePointTargetLocal;
