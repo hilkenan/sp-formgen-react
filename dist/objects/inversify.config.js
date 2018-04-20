@@ -25,7 +25,7 @@ var SPContainer = /** @class */ (function (_super) {
         if (useLocalHost)
             _this.targetInfo = SharePointTarget_1.SharePointTargetLocal;
         else
-            _this.targetInfo = SharePointTarget_1.SharePointTargetOnline;
+            _this.targetInfo = undefined;
         _this.serverRelativeUrl = serverRelativeUrl;
         _this.declareDependencies();
         return _this;

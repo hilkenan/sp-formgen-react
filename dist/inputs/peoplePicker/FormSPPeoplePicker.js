@@ -64,6 +64,9 @@ var FormSPPeoplePicker = /** @class */ (function (_super) {
             noResultsFoundText: ppFormater(LocalsPeoplePicker_1.LocalsPeoplePicker.noResultsFoundText),
             loadingText: ppFormater(LocalsPeoplePicker_1.LocalsPeoplePicker.loadingText),
             showRemoveButtons: true,
+            searchForMoreText: "Weitere Benutzer suchen",
+            forceResolveText: "Forcieren",
+            searchingText: "Sucht",
             suggestionsAvailableAlertText: ppFormater(LocalsPeoplePicker_1.LocalsPeoplePicker.suggestionsAvailableAlertText),
             suggestionsContainerAriaLabel: ppFormater(LocalsPeoplePicker_1.LocalsPeoplePicker.suggestionsContainerAriaLabel),
         };

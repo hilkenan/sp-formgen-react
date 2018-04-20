@@ -1,7 +1,7 @@
 import { Container } from 'inversify';
 import { typesForInject } from 'formgen-react';
 import { ITargetInfo } from 'gd-sprest/build/utils/types';
-import { SharePointTargetLocal, SharePointTargetOnline } from './SharePointTarget';
+import { SharePointTargetLocal } from './SharePointTarget';
 import { IDataProviderCollection } from 'formgen-react/dist/formBaseInput/FormBaseInput.types';
 import { typesForInjectSP, SPDataProviderServiceCollection } from '../SPDataProviderServiceCollection';
 
@@ -18,7 +18,7 @@ export class SPContainer extends Container {
       if (useLocalHost)
         this.targetInfo = SharePointTargetLocal;
       else
-        this.targetInfo = SharePointTargetOnline;
+        this.targetInfo = undefined;
 
       this.serverRelativeUrl = serverRelativeUrl;
 

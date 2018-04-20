@@ -36,12 +36,11 @@ var SPHelper = /** @class */ (function () {
      * @param webUrl The Url relative to the base url
      */
     SPHelper.prototype.getCorrectWebUrl = function (webUrl) {
-        if (this.targetInfo.url && (webUrl || webUrl == ""))
+        if (this.targetInfo && this.targetInfo.url && (webUrl || webUrl == ""))
             return this.targetInfo.url + this.serverRelativeUrl + webUrl;
-        else if (!this.targetInfo.url && !webUrl)
+        else if ((!this.targetInfo || !this.targetInfo.url) && !webUrl)
             return this.serverRelativeUrl;
-        else
-            return this.serverRelativeUrl + webUrl;
+        return this.serverRelativeUrl + webUrl;
     };
     /**
      * Get the correct web url from the list.
