@@ -2,7 +2,7 @@ import { Control, IDataProviderService } from 'formgen-react';
 import { JSPFormData } from './JSPFormData';
 import { ITargetInfo } from 'gd-sprest/build/utils/types';
 import { Web, PeopleManager, $REST } from 'gd-sprest';
-import { IPersonProperties, IUserResult, IUserQueryResult } from 'gd-sprest/build/mapper/types';
+import { IPersonProperties, IUserResult, IUserQueryResult, IPeopleManager, IResults } from 'gd-sprest/build/mapper/types';
 import { IDropdownOption } from 'office-ui-fabric-react';
 import { Helper } from 'formgen-react/dist/Helper';
 import { KeyValue, SearchResult } from 'gd-sprest/build/mapper/types/complexTypes';
@@ -98,37 +98,29 @@ export class SPUserProfileProviderService implements IDataProviderService {
             .execute((result) => {
                 let queryResult = result["postquery"] as SearchResult;
                 let rowsObject = queryResult.PrimaryQueryResult.RelevantResults.Table.Rows["results"] as Array<Object>
-                let promises:Promise<any>[] = [];
+                let promises:Promise<IPersonProperties>[] = [];
                 for(let row of rowsObject) {
                     let cells = row["Cells"]["results"] as KeyValue[];
                     let accountNameCell = cells.find(c => c.Key == "AccountName");
                     promises.push(this.getPropertiesFor(accountNameCell.Value));
                 }
-                let promises2:Promise<any>[] = [];                        
-                Promise.all(promises).then((innerProm) => {
-                    for(let p of innerProm) {
-                        promises2.push(p.json())
-                    }
-                    Promise.all(promises2).then((allValues) => {
-                        let subPropertyName = configParts[1];
-                        let dropDonwEntries:IDropdownOption[] = [];
-                        
-                        for(let json of allValues) {
-                            let innerValue = json["d"][subPropertyName];
-                            if (innerValue == undefined && json["d"]["UserProfileProperties"]) {
-                                let resArray = json["d"]["UserProfileProperties"].results as Array<KeyValue>
-                                let valueO = resArray.find(e => e.Key == subPropertyName);
-                                if (valueO)
-                                    innerValue = valueO.Value;
-                            }
-                            if (innerValue) {
-                                dropDonwEntries.push({
-                                    key: json["d"]["AccountName"],
-                                    text: innerValue });
-                            }
+                let dropDonwEntries: IDropdownOption[] = [];
+                Promise.all(promises).then((persProperties) => {
+                    let subPropertyName = configParts[1];
+                    for(let props of persProperties) {
+                        let innerValue = props[subPropertyName];
+                        if (innerValue == undefined && props.UserProfileProperties) {
+                            let valueO = props.UserProfileProperties.results.find( p => p.Key == subPropertyName)
+                            if (valueO)
+                                innerValue = valueO.Value;
                         }
-                        resolve(dropDonwEntries);    
-                    });
+                        if (innerValue) {
+                            dropDonwEntries.push({
+                                key: props.AccountName,
+                                text: innerValue });
+                        }
+                    }
+                    resolve(dropDonwEntries);    
                 });
             });
         });
@@ -172,11 +164,13 @@ export class SPUserProfileProviderService implements IDataProviderService {
      * Manual Call the Rest API Method (buggy gd-sprest)
      * @param account Account Name
      */
-    private getPropertiesFor(account:string) : Promise<Response> {
-        account = encodeURIComponent(account);
-        let webUrl = this.spHelper.getCorrectWebUrl("");
-        let apiUrl = webUrl + "/_api/sp.userprofiles.peoplemanager/getPropertiesFor(accountName=@v)?@v='" + account + "'";
-        return fetch(apiUrl);
+    private getPropertiesFor(account:string) : Promise<IPersonProperties> {
+        return new Promise<IPersonProperties>((resolve)  => {
+            let manager: IPeopleManager = new PeopleManager(this.targetInfo);
+            return manager.getPropertiesFor(account).execute((props) => {
+                resolve(props)
+            });
+        });
     }
 
     /** 
@@ -186,48 +180,47 @@ export class SPUserProfileProviderService implements IDataProviderService {
      * @param profile The Person Properties (Profile)
      * @param manager The People Manager
      */
-    private getPropertyForOthers(propertyName:string, configParts:string[], profile:IPersonProperties): Promise<any> {
-        return new Promise<any>((resolve)  => {
+    private getPropertyForOthers(propertyName:string, configParts:string[], profile:IPersonProperties): Promise<string> {
+        return new Promise<string>((resolve)  => {
             let value = profile[propertyName];
             if (configParts.length > 1) {
-                let innerObject = undefined;
+                let innerObject:IResults<string> = undefined;
                 if (configParts[0] == "reports")
-                    innerObject = profile.ExtendedReports as Object;
+                    innerObject = profile.ExtendedReports;
                 else if (configParts[0] == "managers") {
-                    innerObject = profile.ExtendedManagers as Object;
+                    innerObject = profile.ExtendedManagers;
                 }
                 if (innerObject) {
-                    let result = innerObject["results"] as Array<string>;
-                    let accounts:string[];
-                    accounts = result;
-
+                    let accounts:string[] = innerObject.results;
                     if (configParts.length == 2) {
-                        let promises:Promise<any>[] = [];
+                        let promises:Promise<IPersonProperties>[] = [];
+                        let subPropertyName = configParts[1];
+                        
                         for(let account of accounts) {
                             if (account != profile.AccountName) {
                                 promises.push(this.getPropertiesFor(account))
                             }
                         }
-                        let promises2:Promise<any>[] = [];                        
-                        Promise.all(promises).then((innerProm) => {
-                            for(let p of innerProm) {
-                                promises2.push(p.json())
-                            }
-                            Promise.all(promises2).then((allValues) => {
-                                let values:any[] = [];
-                                let subPropertyName = configParts[1];
-                                for(let json of allValues) {
-                                    let innerValue = json["d"][subPropertyName];
-                                    if (innerValue == undefined && json["d"]["UserProfileProperties"]) {
-                                        let resArray = json["d"]["UserProfileProperties"].results as Array<KeyValue>
-                                        let valueO = resArray.find(e => e.Key == subPropertyName);
-                                        if (valueO)
-                                            innerValue = valueO.Value;
+                        Promise.all(promises).then((properties) => {
+                            let values:string[] = [];
+                            for(let account of accounts) {
+                                if (account != profile.AccountName) {
+                                    let props = properties.find(p => p.AccountName == account);
+                                    if (props) {
+                                        let innerValue = props[subPropertyName];
+                                        if (innerValue == undefined && props.UserProfileProperties) {
+                                            let valueO = props.UserProfileProperties.results.find( p => p.Key == subPropertyName)
+                                            if (valueO) {
+                                                innerValue = valueO.Value;
+                                            }
+                                            if (innerValue) {
+                                                values.push(innerValue);
+                                            }
+                                        }
                                     }
-                                    values.push(innerValue);
                                 }
-                                resolve(values.join(","));    
-                            });
+                            }
+                            resolve(values.join(","));
                         });
                     }
                     else
@@ -323,30 +316,28 @@ export class SPUserProfileProviderService implements IDataProviderService {
     private fillValueFromUser(configParts:string[], user:IUserResult | IUserQueryResult) : Promise<IDropdownOption> {
         return new Promise<IDropdownOption>((resolve, reject)  => {
             let propertyNames = configParts[0].split(",");
-            this.getPropertiesFor(user.LoginName).then((response) => {
+            this.getPropertiesFor(user.LoginName).then((persProps) => {
                 let text:string = "";
-                response.json().then((props) => {
-                    for(let pName of propertyNames) {
-                        let innerValue = props["d"][pName];
-                        if (innerValue == undefined && props["d"]["UserProfileProperties"]) {
-                            let resArray = props["d"]["UserProfileProperties"].results as Array<KeyValue>
-                            let valueO = resArray.find(e => e.Key == pName);
-                            if (valueO)
-                                innerValue = valueO.Value;
+                for(let pName of propertyNames) {
+                    let innerValue:string = persProps[pName];
+                    if (innerValue == undefined && persProps.UserProfileProperties) {
+                        let valueO = persProps.UserProfileProperties[pName];
+                        if (valueO) {
+                            innerValue = valueO.Value;
                         }
-                        text = text + innerValue ? innerValue : "" + " "
                     }
-                    if (text && text.length > 0) {
-                        text = text.trim();
-                        resolve({
-                            key: user.LoginName,
-                            text: text
-                        });
-                    }
-                    else {
-                        resolve(undefined);
-                    }
-                })
+                    text = text + innerValue ? innerValue : "" + " "
+                }
+                if (text && text.length > 0) {
+                    text = text.trim();
+                    resolve({
+                        key: user.LoginName,
+                        text: text
+                    });
+                }
+                else {
+                    resolve(undefined);
+                }
             })
         })
     }

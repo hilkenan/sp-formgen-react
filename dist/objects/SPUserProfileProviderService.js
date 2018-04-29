@@ -86,33 +86,25 @@ var SPUserProfileProviderService = /** @class */ (function () {
                     var accountNameCell = cells.find(function (c) { return c.Key == "AccountName"; });
                     promises.push(_this.getPropertiesFor(accountNameCell.Value));
                 }
-                var promises2 = [];
-                Promise.all(promises).then(function (innerProm) {
-                    for (var _i = 0, innerProm_1 = innerProm; _i < innerProm_1.length; _i++) {
-                        var p = innerProm_1[_i];
-                        promises2.push(p.json());
-                    }
-                    Promise.all(promises2).then(function (allValues) {
-                        var subPropertyName = configParts[1];
-                        var dropDonwEntries = [];
-                        for (var _i = 0, allValues_1 = allValues; _i < allValues_1.length; _i++) {
-                            var json = allValues_1[_i];
-                            var innerValue = json["d"][subPropertyName];
-                            if (innerValue == undefined && json["d"]["UserProfileProperties"]) {
-                                var resArray = json["d"]["UserProfileProperties"].results;
-                                var valueO = resArray.find(function (e) { return e.Key == subPropertyName; });
-                                if (valueO)
-                                    innerValue = valueO.Value;
-                            }
-                            if (innerValue) {
-                                dropDonwEntries.push({
-                                    key: json["d"]["AccountName"],
-                                    text: innerValue
-                                });
-                            }
+                var dropDonwEntries = [];
+                Promise.all(promises).then(function (persProperties) {
+                    var subPropertyName = configParts[1];
+                    for (var _i = 0, persProperties_1 = persProperties; _i < persProperties_1.length; _i++) {
+                        var props = persProperties_1[_i];
+                        var innerValue = props[subPropertyName];
+                        if (innerValue == undefined && props.UserProfileProperties) {
+                            var valueO = props.UserProfileProperties.results.find(function (p) { return p.Key == subPropertyName; });
+                            if (valueO)
+                                innerValue = valueO.Value;
                         }
-                        resolve(dropDonwEntries);
-                    });
+                        if (innerValue) {
+                            dropDonwEntries.push({
+                                key: props.AccountName,
+                                text: innerValue
+                            });
+                        }
+                    }
+                    resolve(dropDonwEntries);
                 });
             });
         });
@@ -153,10 +145,13 @@ var SPUserProfileProviderService = /** @class */ (function () {
      * @param account Account Name
      */
     SPUserProfileProviderService.prototype.getPropertiesFor = function (account) {
-        account = encodeURIComponent(account);
-        var webUrl = this.spHelper.getCorrectWebUrl("");
-        var apiUrl = webUrl + "/_api/sp.userprofiles.peoplemanager/getPropertiesFor(accountName=@v)?@v='" + account + "'";
-        return fetch(apiUrl);
+        var _this = this;
+        return new Promise(function (resolve) {
+            var manager = new gd_sprest_1.PeopleManager(_this.targetInfo);
+            return manager.getPropertiesFor(account).execute(function (props) {
+                resolve(props);
+            });
+        });
     };
     /**
      * Retrieve the properties form the managers or the reports from the given profile.
@@ -177,43 +172,44 @@ var SPUserProfileProviderService = /** @class */ (function () {
                     innerObject = profile.ExtendedManagers;
                 }
                 if (innerObject) {
-                    var result = innerObject["results"];
-                    var accounts = void 0;
-                    accounts = result;
+                    var accounts_1 = innerObject.results;
                     if (configParts.length == 2) {
                         var promises = [];
-                        for (var _i = 0, accounts_1 = accounts; _i < accounts_1.length; _i++) {
-                            var account = accounts_1[_i];
+                        var subPropertyName_1 = configParts[1];
+                        for (var _i = 0, accounts_2 = accounts_1; _i < accounts_2.length; _i++) {
+                            var account = accounts_2[_i];
                             if (account != profile.AccountName) {
                                 promises.push(_this.getPropertiesFor(account));
                             }
                         }
-                        var promises2_1 = [];
-                        Promise.all(promises).then(function (innerProm) {
-                            for (var _i = 0, innerProm_2 = innerProm; _i < innerProm_2.length; _i++) {
-                                var p = innerProm_2[_i];
-                                promises2_1.push(p.json());
-                            }
-                            Promise.all(promises2_1).then(function (allValues) {
-                                var values = [];
-                                var subPropertyName = configParts[1];
-                                for (var _i = 0, allValues_2 = allValues; _i < allValues_2.length; _i++) {
-                                    var json = allValues_2[_i];
-                                    var innerValue = json["d"][subPropertyName];
-                                    if (innerValue == undefined && json["d"]["UserProfileProperties"]) {
-                                        var resArray = json["d"]["UserProfileProperties"].results;
-                                        var valueO = resArray.find(function (e) { return e.Key == subPropertyName; });
-                                        if (valueO)
-                                            innerValue = valueO.Value;
+                        Promise.all(promises).then(function (properties) {
+                            var values = [];
+                            var _loop_1 = function (account) {
+                                if (account != profile.AccountName) {
+                                    var props = properties.find(function (p) { return p.AccountName == account; });
+                                    if (props) {
+                                        var innerValue = props[subPropertyName_1];
+                                        if (innerValue == undefined && props.UserProfileProperties) {
+                                            var valueO = props.UserProfileProperties.results.find(function (p) { return p.Key == subPropertyName_1; });
+                                            if (valueO) {
+                                                innerValue = valueO.Value;
+                                            }
+                                            if (innerValue) {
+                                                values.push(innerValue);
+                                            }
+                                        }
                                     }
-                                    values.push(innerValue);
                                 }
-                                resolve(values.join(","));
-                            });
+                            };
+                            for (var _i = 0, accounts_3 = accounts_1; _i < accounts_3.length; _i++) {
+                                var account = accounts_3[_i];
+                                _loop_1(account);
+                            }
+                            resolve(values.join(","));
                         });
                     }
                     else
-                        resolve(accounts.join(","));
+                        resolve(accounts_1.join(","));
                 }
             }
             else
@@ -253,14 +249,14 @@ var SPUserProfileProviderService = /** @class */ (function () {
                             promises.push(_this.fillValueFromUser(configParts, user));
                         }
                         Promise.all(promises).then(function (values) {
-                            var _loop_1 = function (val) {
+                            var _loop_2 = function (val) {
                                 if (val && list.find(function (l) { return l.key == val.key; }) == undefined) {
                                     list.push(val);
                                 }
                             };
                             for (var _i = 0, values_1 = values; _i < values_1.length; _i++) {
                                 var val = values_1[_i];
-                                _loop_1(val);
+                                _loop_2(val);
                             }
                             resolve(list);
                         });
@@ -286,14 +282,14 @@ var SPUserProfileProviderService = /** @class */ (function () {
                             promises.push(_this.fillValueFromUser(configParts, user));
                         }
                         Promise.all(promises).then(function (values) {
-                            var _loop_2 = function (val) {
+                            var _loop_3 = function (val) {
                                 if (val && list.find(function (l) { return l.key == val.key; }) == undefined) {
                                     list.push(val);
                                 }
                             };
                             for (var _i = 0, values_2 = values; _i < values_2.length; _i++) {
                                 var val = values_2[_i];
-                                _loop_2(val);
+                                _loop_3(val);
                             }
                             resolve(list);
                         });
@@ -314,34 +310,29 @@ var SPUserProfileProviderService = /** @class */ (function () {
         var _this = this;
         return new Promise(function (resolve, reject) {
             var propertyNames = configParts[0].split(",");
-            _this.getPropertiesFor(user.LoginName).then(function (response) {
+            _this.getPropertiesFor(user.LoginName).then(function (persProps) {
                 var text = "";
-                response.json().then(function (props) {
-                    var _loop_3 = function (pName) {
-                        var innerValue = props["d"][pName];
-                        if (innerValue == undefined && props["d"]["UserProfileProperties"]) {
-                            var resArray = props["d"]["UserProfileProperties"].results;
-                            var valueO = resArray.find(function (e) { return e.Key == pName; });
-                            if (valueO)
-                                innerValue = valueO.Value;
+                for (var _i = 0, propertyNames_1 = propertyNames; _i < propertyNames_1.length; _i++) {
+                    var pName = propertyNames_1[_i];
+                    var innerValue = persProps[pName];
+                    if (innerValue == undefined && persProps.UserProfileProperties) {
+                        var valueO = persProps.UserProfileProperties[pName];
+                        if (valueO) {
+                            innerValue = valueO.Value;
                         }
-                        text = text + innerValue ? innerValue : "" + " ";
-                    };
-                    for (var _i = 0, propertyNames_1 = propertyNames; _i < propertyNames_1.length; _i++) {
-                        var pName = propertyNames_1[_i];
-                        _loop_3(pName);
                     }
-                    if (text && text.length > 0) {
-                        text = text.trim();
-                        resolve({
-                            key: user.LoginName,
-                            text: text
-                        });
-                    }
-                    else {
-                        resolve(undefined);
-                    }
-                });
+                    text = text + innerValue ? innerValue : "" + " ";
+                }
+                if (text && text.length > 0) {
+                    text = text.trim();
+                    resolve({
+                        key: user.LoginName,
+                        text: text
+                    });
+                }
+                else {
+                    resolve(undefined);
+                }
             });
         });
     };
