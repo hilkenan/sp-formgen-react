@@ -1,8 +1,6 @@
 import { IDropdownOption } from 'office-ui-fabric-react';
 import { Control, ControlTypes, IDataProviderService } from 'formgen-react';
-import { JSPFormData } from './JSPFormData';
 import { $REST } from 'gd-sprest';
-import { SPHelper } from '../SPHelper';
 import { IListItemResult, IListItemQueryResult, IListItemResults } from 'gd-sprest/build/mapper/types';
 import { ListConfig } from './ListConfig';
 import { SPConfig } from './SPConfig';
@@ -10,28 +8,20 @@ import { Helper } from 'formgen-react/dist/Helper';
 import { ITargetInfo } from 'gd-sprest/build/utils/types';
 import { List } from '..';
 import { IFileObject } from 'formgen-react/dist/inputs/fileUpload/FormFileUpload';
+import { SPProviderServiceBase } from './SPProviderServiceBase';
 
 /**
 * The Provider Service to access SharePoint Lists
 */  
-export class SPListProviderService implements IDataProviderService {
-    private targetInfo: ITargetInfo;
-    private spHelper: SPHelper;
-
+export class SPListProviderService extends SPProviderServiceBase implements IDataProviderService {
     public providerServiceKey = "SPListProvider"
 
     /**
      * Takes the target Info as parmeter.
      */
     public constructor(serverRelativeUrl: string, targetInfo: ITargetInfo) {
-        this.targetInfo = targetInfo;
-        this.spHelper = new SPHelper(serverRelativeUrl, targetInfo)
+        super(serverRelativeUrl, targetInfo)
     }
-
-    /**
-     * The SharePoint Form Data
-     */
-    formData?: JSPFormData;
 
     /**
      *Get from the config key the List Config
@@ -42,7 +32,7 @@ export class SPListProviderService implements IDataProviderService {
             throw "No List Configuration defined";
 
         let configParts = configKey.split(".");
-        let config = this.formData.SPConfig.ListConfigs.find(c => c.Key == configParts[0]);
+        let config = this.spConfig.ListConfigs.find(c => c.Key == configParts[0]);
         if (!config)
             throw "No List Configuration found for key " + configParts[0];
         return config;

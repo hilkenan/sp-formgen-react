@@ -1,7 +1,6 @@
 export { SPHelper } from './SPHelper';
 export { SPContainer } from './objects/inversify.config';
 export { SPUserProfileProviderService } from './objects/SPUserProfileProviderService';
-export { JSPFormData } from './objects/JSPFormData';
 export { SPConfig } from './objects/SPConfig';
 export { List } from './objects/List';
 export { ListConfig } from './objects/ListConfig';
@@ -11,5 +10,4 @@ export { SPFormInputs } from './form/SPFormInputs';
 export { SPForm } from './form/SPForm';
 export { ISPFormProps } from './form/ISPForm.types';
 export { SPListProviderService } from './objects/SPListProviderService';
-export { TemplateHelper } from './objects/TemplateHelper';
 export { ObjectFabric } from './objects/ObjectFabric';

@@ -1,20 +1,31 @@
 "use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
 Object.defineProperty(exports, "__esModule", { value: true });
 var formgen_react_1 = require("formgen-react");
 var gd_sprest_1 = require("gd-sprest");
-var SPHelper_1 = require("../SPHelper");
 var Helper_1 = require("formgen-react/dist/Helper");
+var SPProviderServiceBase_1 = require("./SPProviderServiceBase");
 /**
 * The Provider Service to access SharePoint Lists
 */
-var SPListProviderService = /** @class */ (function () {
+var SPListProviderService = /** @class */ (function (_super) {
+    __extends(SPListProviderService, _super);
     /**
      * Takes the target Info as parmeter.
      */
     function SPListProviderService(serverRelativeUrl, targetInfo) {
-        this.providerServiceKey = "SPListProvider";
-        this.targetInfo = targetInfo;
-        this.spHelper = new SPHelper_1.SPHelper(serverRelativeUrl, targetInfo);
+        var _this = _super.call(this, serverRelativeUrl, targetInfo) || this;
+        _this.providerServiceKey = "SPListProvider";
+        return _this;
     }
     /**
      *Get from the config key the List Config
@@ -24,7 +35,7 @@ var SPListProviderService = /** @class */ (function () {
         if (!configKey)
             throw "No List Configuration defined";
         var configParts = configKey.split(".");
-        var config = this.formData.SPConfig.ListConfigs.find(function (c) { return c.Key == configParts[0]; });
+        var config = this.spConfig.ListConfigs.find(function (c) { return c.Key == configParts[0]; });
         if (!config)
             throw "No List Configuration found for key " + configParts[0];
         return config;
@@ -276,6 +287,6 @@ var SPListProviderService = /** @class */ (function () {
         return cItem;
     };
     return SPListProviderService;
-}());
+}(SPProviderServiceBase_1.SPProviderServiceBase));
 exports.SPListProviderService = SPListProviderService;
 //# sourceMappingURL=SPListProviderService.js.map

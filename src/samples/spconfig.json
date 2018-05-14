@@ -1,0 +1,65 @@
+{
+    "$schema": "../schemas/sp-databinder-config-schema.json",
+    "lists": [{
+        "key": "onelevel",
+        "config": {
+            "view_name": "Alle Elemente",
+            "key_field": "ID",
+            "list_name": "sp-formgen-react-unittest",
+            "display_fields": [{
+                "internal_name": "Title"
+            },{
+                "internal_name": "FormTest1"
+            }]
+        }
+    },{
+        "key": "upload",
+        "config": {
+            "key_field": "ID",
+            "list_name": "Dokumente",
+            "display_fields": [{
+                "internal_name": "Title"
+            },{
+                "internal_name": "FormTest1"
+            }]
+        }
+    },{
+        "key": "unittest",
+        "config": {
+            "display_format": "Test {texts[0]} :{texts[1]}",
+            "view_name": "Alle Elemente",
+            "key_field": "ID",
+            "list_name": "sp-formgen-react-unittest",
+            "display_fields": [{
+                "internal_name": "Title",
+                "display_format": "Das ist der Titel: {fieldValue}"
+            },{
+                "internal_name": "FormTest1"
+            }],
+            "child_lists": [{
+                "parent_field": "unittest",
+                "child_config": {
+                    "key_field": "ID",
+                    "display_fields": [{ "internal_name": "Title" }],
+                    "list_name": "unittestl2"
+                },
+                "child_config_trans" : {
+                    "properties": [{
+                        "key": "DisplayFields[0].InternalName",
+                        "object_trans": {
+                            "en": "TitleEN"
+                        }
+                    }]		
+                }
+            }]
+        },
+        "config_trans": {
+            "properties": [{
+                "key": "DisplayFields[0].DisplayFormat",
+                "object_trans": {
+                    "en": "This is the Titel: {fieldValue}"
+                }
+            }]
+        }
+    }]
+}

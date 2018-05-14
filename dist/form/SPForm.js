@@ -22,9 +22,7 @@ var React = require("react");
 var office_ui_fabric_react_1 = require("office-ui-fabric-react");
 var formgen_react_1 = require("formgen-react");
 var SPFormInputs_1 = require("./SPFormInputs");
-var JSPFormData_1 = require("../objects/JSPFormData");
 var inversify_config_1 = require("../objects/inversify.config");
-var TemplateHelper_1 = require("../objects/TemplateHelper");
 /**
  * The main SharePoint Form Control that renders the Control Tree
  */
@@ -34,10 +32,9 @@ var SPForm = /** @class */ (function (_super) {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     SPForm.prototype.render = function () {
-        var formTitle = this.props.showTemplateTitle ? TemplateHelper_1.TemplateHelper.getTemplatedTitle(this.props.jsonFormData) : undefined;
         var inputs = new SPFormInputs_1.SPFormInputs();
         var spContainer = new inversify_config_1.SPContainer(this.props.useLocalHost ? this.props.useLocalHost : false, this.props.serverRelativeUrl);
-        return (React.createElement(formgen_react_1.GenericForm, __assign({ formTitle: formTitle }, this.props, { container: spContainer, formType: JSPFormData_1.JSPFormData, formInputs: inputs })));
+        return (React.createElement(formgen_react_1.GenericForm, __assign({}, this.props, { container: spContainer, formInputs: inputs })));
     };
     return SPForm;
 }(office_ui_fabric_react_1.BaseComponent));

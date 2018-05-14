@@ -1,21 +1,15 @@
 import { Control, IDataProviderService } from 'formgen-react';
-import { JSPFormData } from './JSPFormData';
 import { ITargetInfo } from 'gd-sprest/build/utils/types';
+import { SPProviderServiceBase } from './SPProviderServiceBase';
 /**
 * The Provider Service to access the User Profile from SharePoint
 */
-export declare class SPUserProfileProviderService implements IDataProviderService {
-    private targetInfo;
-    private spHelper;
+export declare class SPUserProfileProviderService extends SPProviderServiceBase implements IDataProviderService {
     providerServiceKey: string;
     /**
      * Takes the target Info as parmeter.
      */
     constructor(serverRelativeUrl: string, targetInfo: ITargetInfo);
-    /**
-     * The SharePoint Form Data
-     */
-    formData?: JSPFormData;
     /**
      * Retrieve list data from the store filtered and optional limited with count of result items
      * @param configKey Config Key from the control. This will use the by the provider to finde the correct configuration for this request

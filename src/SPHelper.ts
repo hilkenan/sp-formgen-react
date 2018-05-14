@@ -1,10 +1,13 @@
 import { ViewItem } from "./objects/ViewItem";
-import { $REST } from "gd-sprest";
-import { JSPFormData } from "./objects/JSPFormData";
+import { $REST, Web } from "gd-sprest";
 import { IListItemResult } from "gd-sprest/build/mapper/types";
 import { ListConfig } from "./objects/ListConfig";
 import { ITargetInfo } from "gd-sprest/build/utils/types";
 import { List, SPConfig } from ".";
+import { Helper } from "formgen-react/dist/Helper";
+import { JFormData } from "formgen-react";
+import { JsonConvert } from "json2typescript";
+import { SPFormConst } from "./SPFormConst";
 
 /**
  * Helper class to acces sharepoint.
@@ -13,15 +16,49 @@ export class SPHelper {
     private targetInfo: ITargetInfo;
     private serverRelativeUrl: string;
     private camlQueries:ViewItem[];
+    private spConfig:SPConfig;
     
+    /**
+     * Load the Config File from the Config SharePoint List with the config Infos. providerConfigName is the json Filename
+     * @param serverRelativeUrl The server url from the request.
+     * @param targetInfo Target to use (local or current context)
+     * @param spConfig The SharePoint Configuration
+     */
+     public static LoadConfig(serverRelativeUrl:string, targetInfo: ITargetInfo, providerConfigName: string) : SPConfig {
+        let json = SPHelper.getConfigFile(serverRelativeUrl, providerConfigName + ".json", targetInfo);
+        let jsonConvert: JsonConvert = new JsonConvert();
+        return jsonConvert.deserializeObject(json, SPConfig) as SPConfig
+    }
+
+    /**
+     * Get the content of the given file from the Cnfig Library
+     * @param serverRelativeUrl The server url from the request.
+     * @param fileName The filename without extention
+     * @param targetInfo Target to use (local or current context)
+     */    
+    public static getConfigFile(serverRelativeUrl:string, fileName:string, targetInfo: ITargetInfo) : string {
+        let url = serverRelativeUrl + SPFormConst.ConfigLibraryUrl;
+        let content = (new Web(serverRelativeUrl,  targetInfo))
+            .getFolderByServerRelativeUrl(url)
+            .Files(fileName)
+            .openBinaryStream()
+            .executeAndWait();
+        if (content.toString().indexOf("{\"error\":") != -1) {
+            throw content;
+        }
+        return content.toString();
+    }
+
     /**
      * Takes the target Info
      * @param serverRelativeUrl The server url from the request.
      * @param targetInfo Target to use (local or current context)
+     * @param spConfig The SharePoint Configuration
      */
-    public constructor(serverRelativeUrl: string, targetInfo: ITargetInfo) {
+    public constructor(serverRelativeUrl: string, targetInfo: ITargetInfo, spConfig:SPConfig) {
         this.targetInfo = targetInfo;
         this.serverRelativeUrl = serverRelativeUrl;
+        this.spConfig = spConfig;
     }
 
     /**
@@ -29,8 +66,8 @@ export class SPHelper {
      * @param formData the Current Form Data object
      * @param config The Config for the List to get the view from.
      */                 
-    public getListViewXml(formData:JSPFormData, config:ListConfig):string {
-        let webUrl = formData.SPConfig.BaseUrl + config.WebUrl;
+    public getListViewXml(formData:JFormData, config:ListConfig):string {
+        let webUrl = this.spConfig.BaseUrl + config.WebUrl;
         webUrl = this.getCorrectWebUrl(webUrl);
         
         let listView;
@@ -92,16 +129,6 @@ export class SPHelper {
     }
 
     /**
-     * Replace the all occurencies from search in the target with replacments
-     * @param target the origin string
-     * @param search the search string
-     * @param replacement the replacment string
-     */                 
-    public static replaceAll(target:string, search:string, replacement: string) {
-        return target.split(search).join(replacement);
-    }
-
-    /**
      * Collect the text for the display
      * @param item The ListItem Result to collect texts from.
      * @param config The Configuration for this list.
@@ -119,7 +146,7 @@ export class SPHelper {
             
             let fieldValue = item[fieldNaame];
             if (fieldConfig.DisplayFormat) {
-                fieldValue = SPHelper.replaceAll(fieldConfig.DisplayFormat, "{fieldValue}",  fieldValue);
+                fieldValue = Helper.replaceAll(fieldConfig.DisplayFormat, "{fieldValue}",  fieldValue);
             }
             texts.push(fieldValue)
         }
@@ -127,7 +154,7 @@ export class SPHelper {
         if (config.DisplayFormat) {
             text = config.DisplayFormat;
             for(let i = 0;i < texts.length; i++) {
-                text = SPHelper.replaceAll(text, "{texts[" + i + "]}",  texts[i]);
+                text = Helper.replaceAll(text, "{texts[" + i + "]}",  texts[i]);
             }
         }
         else

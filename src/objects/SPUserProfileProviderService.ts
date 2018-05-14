@@ -1,34 +1,24 @@
 import { Control, IDataProviderService } from 'formgen-react';
-import { JSPFormData } from './JSPFormData';
 import { ITargetInfo } from 'gd-sprest/build/utils/types';
 import { Web, PeopleManager, $REST } from 'gd-sprest';
 import { IPersonProperties, IUserResult, IUserQueryResult, IPeopleManager, IResults } from 'gd-sprest/build/mapper/types';
 import { IDropdownOption } from 'office-ui-fabric-react';
 import { Helper } from 'formgen-react/dist/Helper';
 import { KeyValue, SearchResult } from 'gd-sprest/build/mapper/types/complexTypes';
-import { SPHelper } from '..';
+import { SPProviderServiceBase } from './SPProviderServiceBase';
 
 /**
 * The Provider Service to access the User Profile from SharePoint
 */  
-export class SPUserProfileProviderService implements IDataProviderService {
-    private targetInfo: ITargetInfo;
-    private spHelper:SPHelper;
-
+export class SPUserProfileProviderService extends SPProviderServiceBase implements IDataProviderService {
     public providerServiceKey = "SPUserProfileProvider"
 
     /**
      * Takes the target Info as parmeter.
      */
     public constructor(serverRelativeUrl:string, targetInfo: ITargetInfo) {
-        this.targetInfo = targetInfo;
-        this.spHelper = new SPHelper(serverRelativeUrl, targetInfo);
+        super(serverRelativeUrl, targetInfo)
     }
-
-    /**
-     * The SharePoint Form Data
-     */
-    formData?: JSPFormData;
 
     /**
      * Retrieve list data from the store filtered and optional limited with count of result items

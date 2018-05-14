@@ -1,6 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var gd_sprest_1 = require("gd-sprest");
+var _1 = require(".");
+var Helper_1 = require("formgen-react/dist/Helper");
+var json2typescript_1 = require("json2typescript");
+var SPFormConst_1 = require("./SPFormConst");
 /**
  * Helper class to acces sharepoint.
  */
@@ -9,18 +13,49 @@ var SPHelper = /** @class */ (function () {
      * Takes the target Info
      * @param serverRelativeUrl The server url from the request.
      * @param targetInfo Target to use (local or current context)
+     * @param spConfig The SharePoint Configuration
      */
-    function SPHelper(serverRelativeUrl, targetInfo) {
+    function SPHelper(serverRelativeUrl, targetInfo, spConfig) {
         this.targetInfo = targetInfo;
         this.serverRelativeUrl = serverRelativeUrl;
+        this.spConfig = spConfig;
     }
+    /**
+     * Load the Config File from the Config SharePoint List with the config Infos. providerConfigName is the json Filename
+     * @param serverRelativeUrl The server url from the request.
+     * @param targetInfo Target to use (local or current context)
+     * @param spConfig The SharePoint Configuration
+     */
+    SPHelper.LoadConfig = function (serverRelativeUrl, targetInfo, providerConfigName) {
+        var json = SPHelper.getConfigFile(serverRelativeUrl, providerConfigName + ".json", targetInfo);
+        var jsonConvert = new json2typescript_1.JsonConvert();
+        return jsonConvert.deserializeObject(json, _1.SPConfig);
+    };
+    /**
+     * Get the content of the given file from the Cnfig Library
+     * @param serverRelativeUrl The server url from the request.
+     * @param fileName The filename without extention
+     * @param targetInfo Target to use (local or current context)
+     */
+    SPHelper.getConfigFile = function (serverRelativeUrl, fileName, targetInfo) {
+        var url = serverRelativeUrl + SPFormConst_1.SPFormConst.ConfigLibraryUrl;
+        var content = (new gd_sprest_1.Web(serverRelativeUrl, targetInfo))
+            .getFolderByServerRelativeUrl(url)
+            .Files(fileName)
+            .openBinaryStream()
+            .executeAndWait();
+        if (content.toString().indexOf("{\"error\":") != -1) {
+            throw content;
+        }
+        return content.toString();
+    };
     /**
      * Get the correct List View XML for the configured list settings.
      * @param formData the Current Form Data object
      * @param config The Config for the List to get the view from.
      */
     SPHelper.prototype.getListViewXml = function (formData, config) {
-        var webUrl = formData.SPConfig.BaseUrl + config.WebUrl;
+        var webUrl = this.spConfig.BaseUrl + config.WebUrl;
         webUrl = this.getCorrectWebUrl(webUrl);
         var listView;
         if (!config.ViewName) {
@@ -76,15 +111,6 @@ var SPHelper = /** @class */ (function () {
         return this.camlQueries.find(function (v) { return v.ViewName == key; }).Query;
     };
     /**
-     * Replace the all occurencies from search in the target with replacments
-     * @param target the origin string
-     * @param search the search string
-     * @param replacement the replacment string
-     */
-    SPHelper.replaceAll = function (target, search, replacement) {
-        return target.split(search).join(replacement);
-    };
-    /**
      * Collect the text for the display
      * @param item The ListItem Result to collect texts from.
      * @param config The Configuration for this list.
@@ -102,7 +128,7 @@ var SPHelper = /** @class */ (function () {
                     configFieldName + "_" + lang : configFieldName;
             var fieldValue = item[fieldNaame];
             if (fieldConfig.DisplayFormat) {
-                fieldValue = SPHelper.replaceAll(fieldConfig.DisplayFormat, "{fieldValue}", fieldValue);
+                fieldValue = Helper_1.Helper.replaceAll(fieldConfig.DisplayFormat, "{fieldValue}", fieldValue);
             }
             texts.push(fieldValue);
         }
@@ -110,7 +136,7 @@ var SPHelper = /** @class */ (function () {
         if (config.DisplayFormat) {
             text = config.DisplayFormat;
             for (var i = 0; i < texts.length; i++) {
-                text = SPHelper.replaceAll(text, "{texts[" + i + "]}", texts[i]);
+                text = Helper_1.Helper.replaceAll(text, "{texts[" + i + "]}", texts[i]);
             }
         }
         else
