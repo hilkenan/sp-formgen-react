@@ -1,6 +1,6 @@
 import { Control, IDataProviderService } from 'formgen-react';
 import { ITargetInfo } from 'gd-sprest/build/utils/types';
-import { SPProviderServiceBase } from './SPProviderServiceBase';
+import { SPProviderServiceBase } from '..';
 /**
 * The Provider Service to access SharePoint Lists
 */

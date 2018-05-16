@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var SPFormConst = /** @class */ (function () {
     function SPFormConst() {
     }
-    SPFormConst.ConfigLibraryUrl = "/config";
+    SPFormConst.ConfigLibraryUrl = "/Config";
     return SPFormConst;
 }());
 exports.SPFormConst = SPFormConst;

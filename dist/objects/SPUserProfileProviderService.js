@@ -12,7 +12,7 @@ var __extends = (this && this.__extends) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 var gd_sprest_1 = require("gd-sprest");
 var Helper_1 = require("formgen-react/dist/Helper");
-var SPProviderServiceBase_1 = require("./SPProviderServiceBase");
+var __1 = require("..");
 /**
 * The Provider Service to access the User Profile from SharePoint
 */
@@ -363,8 +363,8 @@ var SPUserProfileProviderService = /** @class */ (function (_super) {
         var configParts = configKey.split(".");
         if (configParts.length == 0)
             throw "At least the Provider and the name of the property has to be defined e.g. SPUserProfileProvider.AccountName to get the account name of the current User";
+        var webUrl = this.spHelper.getCorrectWebUrl("");
         return new Promise(function (resolve, reject) {
-            var webUrl = _this.spHelper.getCorrectWebUrl("");
             (new gd_sprest_1.Web(webUrl, _this.targetInfo))
                 .CurrentUser()
                 .query({
@@ -389,6 +389,6 @@ var SPUserProfileProviderService = /** @class */ (function (_super) {
         });
     };
     return SPUserProfileProviderService;
-}(SPProviderServiceBase_1.SPProviderServiceBase));
+}(__1.SPProviderServiceBase));
 exports.SPUserProfileProviderService = SPUserProfileProviderService;
 //# sourceMappingURL=SPUserProfileProviderService.js.map

@@ -13,8 +13,10 @@ var SPProviderServiceBase = /** @class */ (function () {
         this.serverRelativeUrl = serverRelativeUrl;
     }
     SPProviderServiceBase.prototype.initialize = function () {
-        this.spConfig = SPHelper_1.SPHelper.LoadConfig(this.serverRelativeUrl, this.targetInfo, this.formData.DataProviderConfigName);
-        this.spHelper = new SPHelper_1.SPHelper(this.serverRelativeUrl, this.targetInfo, this.spConfig);
+        if (!this.spConfig) {
+            this.spConfig = SPHelper_1.SPHelper.LoadConfig(this.serverRelativeUrl, this.targetInfo, this.formData.DataProviderConfigName);
+            this.spHelper = new SPHelper_1.SPHelper(this.serverRelativeUrl, this.targetInfo, this.spConfig);
+        }
     };
     return SPProviderServiceBase;
 }());

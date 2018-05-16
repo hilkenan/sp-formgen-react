@@ -29,7 +29,8 @@ var SPHelper = /** @class */ (function () {
     SPHelper.LoadConfig = function (serverRelativeUrl, targetInfo, providerConfigName) {
         var json = SPHelper.getConfigFile(serverRelativeUrl, providerConfigName + ".json", targetInfo);
         var jsonConvert = new json2typescript_1.JsonConvert();
-        return jsonConvert.deserializeObject(json, _1.SPConfig);
+        var jsonObject = JSON.parse(json);
+        return jsonConvert.deserializeObject(jsonObject, _1.SPConfig);
     };
     /**
      * Get the content of the given file from the Cnfig Library
@@ -39,12 +40,13 @@ var SPHelper = /** @class */ (function () {
      */
     SPHelper.getConfigFile = function (serverRelativeUrl, fileName, targetInfo) {
         var url = serverRelativeUrl + SPFormConst_1.SPFormConst.ConfigLibraryUrl;
-        var content = (new gd_sprest_1.Web(serverRelativeUrl, targetInfo))
+        var webUrl = SPHelper.getCorrectWebUrlFromTarget("", targetInfo, serverRelativeUrl);
+        var content = gd_sprest_1.$REST.Web(webUrl, targetInfo)
             .getFolderByServerRelativeUrl(url)
             .Files(fileName)
             .openBinaryStream()
             .executeAndWait();
-        if (content.toString().indexOf("{\"error\":") != -1) {
+        if (content.toString().indexOf("{\"error\":") != -1 || content.toString().indexOf("Error") != -1) {
             throw content;
         }
         return content.toString();
@@ -76,6 +78,19 @@ var SPHelper = /** @class */ (function () {
         else if ((!this.targetInfo || !this.targetInfo.url) && !webUrl)
             return this.serverRelativeUrl;
         return this.serverRelativeUrl + webUrl;
+    };
+    /**
+     * Depending on environment att the target url.
+     * @param webUrl The Url relative to the base url
+     * @param targetInfo The Target Info
+     * @param serverRelativeUrl Server Relative url
+     */
+    SPHelper.getCorrectWebUrlFromTarget = function (webUrl, targetInfo, serverRelativeUrl) {
+        if (targetInfo && targetInfo.url && (webUrl || webUrl == ""))
+            return targetInfo.url + serverRelativeUrl + webUrl;
+        else if ((!targetInfo || !targetInfo.url) && !webUrl)
+            return serverRelativeUrl;
+        return serverRelativeUrl + webUrl;
     };
     /**
      * Get the correct web url from the list.

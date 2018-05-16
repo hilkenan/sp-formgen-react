@@ -13,7 +13,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var formgen_react_1 = require("formgen-react");
 var gd_sprest_1 = require("gd-sprest");
 var Helper_1 = require("formgen-react/dist/Helper");
-var SPProviderServiceBase_1 = require("./SPProviderServiceBase");
+var __1 = require("..");
 /**
 * The Provider Service to access SharePoint Lists
 */
@@ -287,6 +287,6 @@ var SPListProviderService = /** @class */ (function (_super) {
         return cItem;
     };
     return SPListProviderService;
-}(SPProviderServiceBase_1.SPProviderServiceBase));
+}(__1.SPProviderServiceBase));
 exports.SPListProviderService = SPListProviderService;
 //# sourceMappingURL=SPListProviderService.js.map

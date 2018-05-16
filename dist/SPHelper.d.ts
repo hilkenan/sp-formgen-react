@@ -44,6 +44,13 @@ export declare class SPHelper {
      */
     getCorrectWebUrl(webUrl: string): string;
     /**
+     * Depending on environment att the target url.
+     * @param webUrl The Url relative to the base url
+     * @param targetInfo The Target Info
+     * @param serverRelativeUrl Server Relative url
+     */
+    private static getCorrectWebUrlFromTarget(webUrl, targetInfo, serverRelativeUrl);
+    /**
      * Get the correct web url from the list.
      * @param config The config for the given list
      * @param controlConfig SharePoint part of the configuration (translated)
