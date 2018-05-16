@@ -6,9 +6,8 @@ import { ListConfig } from './ListConfig';
 import { SPConfig } from './SPConfig';
 import { Helper } from 'formgen-react/dist/Helper';
 import { ITargetInfo } from 'gd-sprest/build/utils/types';
-import { List } from '..';
+import { List, SPProviderServiceBase } from '..';
 import { IFileObject } from 'formgen-react/dist/inputs/fileUpload/FormFileUpload';
-import { SPProviderServiceBase } from './SPProviderServiceBase';
 
 /**
 * The Provider Service to access SharePoint Lists

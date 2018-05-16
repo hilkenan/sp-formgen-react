@@ -5,7 +5,7 @@ import { IPersonProperties, IUserResult, IUserQueryResult, IPeopleManager, IResu
 import { IDropdownOption } from 'office-ui-fabric-react';
 import { Helper } from 'formgen-react/dist/Helper';
 import { KeyValue, SearchResult } from 'gd-sprest/build/mapper/types/complexTypes';
-import { SPProviderServiceBase } from './SPProviderServiceBase';
+import { SPProviderServiceBase } from '..';
 
 /**
 * The Provider Service to access the User Profile from SharePoint
@@ -347,8 +347,8 @@ export class SPUserProfileProviderService extends SPProviderServiceBase implemen
         let configParts = configKey.split(".");
         if (configParts.length == 0)
             throw "At least the Provider and the name of the property has to be defined e.g. SPUserProfileProvider.AccountName to get the account name of the current User"
+        let webUrl = this.spHelper.getCorrectWebUrl("");
         return new Promise<any>((resolve, reject)  => {
-            let webUrl = this.spHelper.getCorrectWebUrl("");
             (new Web(webUrl, this.targetInfo))
             .CurrentUser()
             .query({

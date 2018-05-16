@@ -15,7 +15,7 @@ export class SPContainer extends Container {
 
     constructor(useLocalHost: boolean, serverRelativeUrl: string) {
       super();
-      if (useLocalHost)
+      if (useLocalHost) 
         this.targetInfo = SharePointTargetLocal;
       else
         this.targetInfo = undefined;

@@ -1,5 +1,5 @@
 import { ViewItem } from "./objects/ViewItem";
-import { $REST, Web } from "gd-sprest";
+import { $REST } from "gd-sprest";
 import { IListItemResult } from "gd-sprest/build/mapper/types";
 import { ListConfig } from "./objects/ListConfig";
 import { ITargetInfo } from "gd-sprest/build/utils/types";
@@ -27,7 +27,8 @@ export class SPHelper {
      public static LoadConfig(serverRelativeUrl:string, targetInfo: ITargetInfo, providerConfigName: string) : SPConfig {
         let json = SPHelper.getConfigFile(serverRelativeUrl, providerConfigName + ".json", targetInfo);
         let jsonConvert: JsonConvert = new JsonConvert();
-        return jsonConvert.deserializeObject(json, SPConfig) as SPConfig
+        let jsonObject = JSON.parse(json);
+        return jsonConvert.deserializeObject(jsonObject, SPConfig) as SPConfig
     }
 
     /**
@@ -38,12 +39,13 @@ export class SPHelper {
      */    
     public static getConfigFile(serverRelativeUrl:string, fileName:string, targetInfo: ITargetInfo) : string {
         let url = serverRelativeUrl + SPFormConst.ConfigLibraryUrl;
-        let content = (new Web(serverRelativeUrl,  targetInfo))
+        let webUrl = SPHelper.getCorrectWebUrlFromTarget("", targetInfo, serverRelativeUrl);
+        let content = $REST.Web(webUrl,  targetInfo)
             .getFolderByServerRelativeUrl(url)
             .Files(fileName)
             .openBinaryStream()
             .executeAndWait();
-        if (content.toString().indexOf("{\"error\":") != -1) {
+        if (content.toString().indexOf("{\"error\":") != -1 || content.toString().indexOf("Error") != -1) {
             throw content;
         }
         return content.toString();
@@ -91,6 +93,20 @@ export class SPHelper {
             return this.serverRelativeUrl;
         return this.serverRelativeUrl + webUrl;
     }
+
+    /**
+     * Depending on environment att the target url.
+     * @param webUrl The Url relative to the base url
+     * @param targetInfo The Target Info
+     * @param serverRelativeUrl Server Relative url
+     */                 
+    private static getCorrectWebUrlFromTarget(webUrl:string, targetInfo:ITargetInfo, serverRelativeUrl:string): string {
+        if (targetInfo && targetInfo.url && (webUrl || webUrl == ""))
+            return targetInfo.url + serverRelativeUrl + webUrl;
+        else if ((!targetInfo || !targetInfo.url) && !webUrl)
+            return serverRelativeUrl;
+        return serverRelativeUrl + webUrl;
+    }    
 
     /**
      * Get the correct web url from the list.

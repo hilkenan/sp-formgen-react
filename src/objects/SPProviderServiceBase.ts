@@ -26,7 +26,9 @@ export abstract class SPProviderServiceBase {
     }
 
     public initialize() {
-        this.spConfig = SPHelper.LoadConfig(this.serverRelativeUrl, this.targetInfo, this.formData.DataProviderConfigName)
-        this.spHelper = new SPHelper(this.serverRelativeUrl, this.targetInfo, this.spConfig);
+        if (!this.spConfig) {
+            this.spConfig = SPHelper.LoadConfig(this.serverRelativeUrl, this.targetInfo, this.formData.DataProviderConfigName)
+            this.spHelper = new SPHelper(this.serverRelativeUrl, this.targetInfo, this.spConfig);
+        }
     }
 }
