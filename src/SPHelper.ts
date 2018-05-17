@@ -38,7 +38,8 @@ export class SPHelper {
      * @param targetInfo Target to use (local or current context)
      */    
     public static getConfigFile(serverRelativeUrl:string, fileName:string, targetInfo: ITargetInfo) : string {
-        let url = serverRelativeUrl + SPFormConst.ConfigLibraryUrl;
+        let serverUrl = serverRelativeUrl ? serverRelativeUrl : "";
+        let url = serverUrl + SPFormConst.ConfigLibraryUrl;
         let webUrl = SPHelper.getCorrectWebUrlFromTarget("", targetInfo, serverRelativeUrl);
         let content = $REST.Web(webUrl,  targetInfo)
             .getFolderByServerRelativeUrl(url)
@@ -87,11 +88,12 @@ export class SPHelper {
      * @param webUrl The Url relative to the base url
      */                 
     public getCorrectWebUrl(webUrl:string): string {
+        let serverUrl = this.serverRelativeUrl ? this.serverRelativeUrl : "";
         if (this.targetInfo && this.targetInfo.url && (webUrl || webUrl == ""))
-            return this.targetInfo.url + this.serverRelativeUrl + webUrl;
+            return this.targetInfo.url + serverUrl + webUrl;
         else if ((!this.targetInfo || !this.targetInfo.url) && !webUrl)
-            return this.serverRelativeUrl;
-        return this.serverRelativeUrl + webUrl;
+            return serverUrl;
+        return serverUrl + webUrl;
     }
 
     /**
@@ -101,6 +103,7 @@ export class SPHelper {
      * @param serverRelativeUrl Server Relative url
      */                 
     private static getCorrectWebUrlFromTarget(webUrl:string, targetInfo:ITargetInfo, serverRelativeUrl:string): string {
+        serverRelativeUrl = serverRelativeUrl ? serverRelativeUrl : "";
         if (targetInfo && targetInfo.url && (webUrl || webUrl == ""))
             return targetInfo.url + serverRelativeUrl + webUrl;
         else if ((!targetInfo || !targetInfo.url) && !webUrl)

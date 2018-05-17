@@ -39,7 +39,8 @@ var SPHelper = /** @class */ (function () {
      * @param targetInfo Target to use (local or current context)
      */
     SPHelper.getConfigFile = function (serverRelativeUrl, fileName, targetInfo) {
-        var url = serverRelativeUrl + SPFormConst_1.SPFormConst.ConfigLibraryUrl;
+        var serverUrl = serverRelativeUrl ? serverRelativeUrl : "";
+        var url = serverUrl + SPFormConst_1.SPFormConst.ConfigLibraryUrl;
         var webUrl = SPHelper.getCorrectWebUrlFromTarget("", targetInfo, serverRelativeUrl);
         var content = gd_sprest_1.$REST.Web(webUrl, targetInfo)
             .getFolderByServerRelativeUrl(url)
@@ -73,11 +74,12 @@ var SPHelper = /** @class */ (function () {
      * @param webUrl The Url relative to the base url
      */
     SPHelper.prototype.getCorrectWebUrl = function (webUrl) {
+        var serverUrl = this.serverRelativeUrl ? this.serverRelativeUrl : "";
         if (this.targetInfo && this.targetInfo.url && (webUrl || webUrl == ""))
-            return this.targetInfo.url + this.serverRelativeUrl + webUrl;
+            return this.targetInfo.url + serverUrl + webUrl;
         else if ((!this.targetInfo || !this.targetInfo.url) && !webUrl)
-            return this.serverRelativeUrl;
-        return this.serverRelativeUrl + webUrl;
+            return serverUrl;
+        return serverUrl + webUrl;
     };
     /**
      * Depending on environment att the target url.
@@ -86,6 +88,7 @@ var SPHelper = /** @class */ (function () {
      * @param serverRelativeUrl Server Relative url
      */
     SPHelper.getCorrectWebUrlFromTarget = function (webUrl, targetInfo, serverRelativeUrl) {
+        serverRelativeUrl = serverRelativeUrl ? serverRelativeUrl : "";
         if (targetInfo && targetInfo.url && (webUrl || webUrl == ""))
             return targetInfo.url + serverRelativeUrl + webUrl;
         else if ((!targetInfo || !targetInfo.url) && !webUrl)

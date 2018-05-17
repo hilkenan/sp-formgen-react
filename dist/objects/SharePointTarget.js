@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var SharePointTargetLocal = /** @class */ (function () {
     function SharePointTargetLocal() {
     }
-    SharePointTargetLocal.url = "http://localhost:4323";
+    SharePointTargetLocal.url = "https://localhost:4323";
     return SharePointTargetLocal;
 }());
 exports.SharePointTargetLocal = SharePointTargetLocal;
