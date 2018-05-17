@@ -1,14 +1,4 @@
 "use strict";
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 Object.defineProperty(exports, "__esModule", { value: true });
 var gd_sprest_1 = require("gd-sprest");
 var Helper_1 = require("formgen-react/dist/Helper");
@@ -16,16 +6,21 @@ var __1 = require("..");
 /**
 * The Provider Service to access the User Profile from SharePoint
 */
-var SPUserProfileProviderService = /** @class */ (function (_super) {
-    __extends(SPUserProfileProviderService, _super);
+var SPUserProfileProviderService = /** @class */ (function () {
     /**
      * Takes the target Info as parmeter.
      */
     function SPUserProfileProviderService(serverRelativeUrl, targetInfo) {
-        var _this = _super.call(this, serverRelativeUrl, targetInfo) || this;
-        _this.providerServiceKey = "SPUserProfileProvider";
-        return _this;
+        this.providerServiceKey = "SPUserProfileProvider";
+        this.targetInfo = targetInfo;
+        this.serverRelativeUrl = serverRelativeUrl;
     }
+    SPUserProfileProviderService.prototype.initialize = function () {
+        if (!this.spConfig) {
+            this.spConfig = __1.SPHelper.LoadConfig(this.serverRelativeUrl, this.targetInfo, this.formData.DataProviderConfigName);
+            this.spHelper = new __1.SPHelper(this.serverRelativeUrl, this.targetInfo, this.spConfig);
+        }
+    };
     /**
      * Retrieve list data from the store filtered and optional limited with count of result items
      * @param configKey Config Key from the control. This will use the by the provider to finde the correct configuration for this request
@@ -389,6 +384,6 @@ var SPUserProfileProviderService = /** @class */ (function (_super) {
         });
     };
     return SPUserProfileProviderService;
-}(__1.SPProviderServiceBase));
+}());
 exports.SPUserProfileProviderService = SPUserProfileProviderService;
 //# sourceMappingURL=SPUserProfileProviderService.js.map

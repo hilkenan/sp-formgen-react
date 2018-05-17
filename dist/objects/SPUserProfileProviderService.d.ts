@@ -1,11 +1,20 @@
-import { Control, IDataProviderService } from 'formgen-react';
+import { Control, IDataProviderService, JFormData } from 'formgen-react';
 import { ITargetInfo } from 'gd-sprest/build/utils/types';
-import { SPProviderServiceBase } from '..';
+import { SPConfig, SPHelper } from '..';
 /**
 * The Provider Service to access the User Profile from SharePoint
 */
-export declare class SPUserProfileProviderService extends SPProviderServiceBase implements IDataProviderService {
+export declare class SPUserProfileProviderService implements IDataProviderService {
     providerServiceKey: string;
+    protected targetInfo: ITargetInfo;
+    protected spHelper: SPHelper;
+    protected spConfig: SPConfig;
+    protected serverRelativeUrl: string;
+    /**
+     * The SharePoint Form Data
+     */
+    formData?: JFormData;
+    initialize(): void;
     /**
      * Takes the target Info as parmeter.
      */

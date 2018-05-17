@@ -1,25 +1,42 @@
 import { IDropdownOption } from 'office-ui-fabric-react';
-import { Control, ControlTypes, IDataProviderService } from 'formgen-react';
+import { Control, ControlTypes, IDataProviderService, JFormData } from 'formgen-react';
 import { $REST } from 'gd-sprest';
 import { IListItemResult, IListItemQueryResult, IListItemResults } from 'gd-sprest/build/mapper/types';
 import { ListConfig } from './ListConfig';
 import { SPConfig } from './SPConfig';
 import { Helper } from 'formgen-react/dist/Helper';
 import { ITargetInfo } from 'gd-sprest/build/utils/types';
-import { List, SPProviderServiceBase } from '..';
+import { List, SPHelper } from '..';
 import { IFileObject } from 'formgen-react/dist/inputs/fileUpload/FormFileUpload';
 
 /**
 * The Provider Service to access SharePoint Lists
 */  
-export class SPListProviderService extends SPProviderServiceBase implements IDataProviderService {
+export class SPListProviderService implements IDataProviderService {
     public providerServiceKey = "SPListProvider"
+    protected targetInfo: ITargetInfo;
+    protected spHelper:SPHelper;
+    protected spConfig:SPConfig;
+    protected serverRelativeUrl:string;
+
+    /**
+     * The SharePoint Form Data
+     */
+    formData?: JFormData;
+    
+    public initialize() {
+        if (!this.spConfig) {
+            this.spConfig = SPHelper.LoadConfig(this.serverRelativeUrl, this.targetInfo, this.formData.DataProviderConfigName)
+            this.spHelper = new SPHelper(this.serverRelativeUrl, this.targetInfo, this.spConfig);
+        }
+    }
 
     /**
      * Takes the target Info as parmeter.
      */
     public constructor(serverRelativeUrl: string, targetInfo: ITargetInfo) {
-        super(serverRelativeUrl, targetInfo)
+        this.targetInfo = targetInfo;
+        this.serverRelativeUrl = serverRelativeUrl;
     }
 
     /**

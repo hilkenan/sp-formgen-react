@@ -1,23 +1,40 @@
-import { Control, IDataProviderService } from 'formgen-react';
+import { Control, IDataProviderService, JFormData } from 'formgen-react';
 import { ITargetInfo } from 'gd-sprest/build/utils/types';
 import { Web, PeopleManager, $REST } from 'gd-sprest';
 import { IPersonProperties, IUserResult, IUserQueryResult, IPeopleManager, IResults } from 'gd-sprest/build/mapper/types';
 import { IDropdownOption } from 'office-ui-fabric-react';
 import { Helper } from 'formgen-react/dist/Helper';
 import { KeyValue, SearchResult } from 'gd-sprest/build/mapper/types/complexTypes';
-import { SPProviderServiceBase } from '..';
+import { SPConfig, SPHelper } from '..';
 
 /**
 * The Provider Service to access the User Profile from SharePoint
 */  
-export class SPUserProfileProviderService extends SPProviderServiceBase implements IDataProviderService {
+export class SPUserProfileProviderService implements IDataProviderService {
     public providerServiceKey = "SPUserProfileProvider"
+    protected targetInfo: ITargetInfo;
+    protected spHelper:SPHelper;
+    protected spConfig:SPConfig;
+    protected serverRelativeUrl:string;
+
+    /**
+     * The SharePoint Form Data
+     */
+    formData?: JFormData;
+    
+    public initialize() {
+        if (!this.spConfig) {
+            this.spConfig = SPHelper.LoadConfig(this.serverRelativeUrl, this.targetInfo, this.formData.DataProviderConfigName)
+            this.spHelper = new SPHelper(this.serverRelativeUrl, this.targetInfo, this.spConfig);
+        }
+    }
 
     /**
      * Takes the target Info as parmeter.
      */
     public constructor(serverRelativeUrl:string, targetInfo: ITargetInfo) {
-        super(serverRelativeUrl, targetInfo)
+        this.targetInfo = targetInfo;
+        this.serverRelativeUrl = serverRelativeUrl;
     }
 
     /**

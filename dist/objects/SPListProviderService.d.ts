@@ -1,11 +1,21 @@
-import { Control, IDataProviderService } from 'formgen-react';
+import { Control, IDataProviderService, JFormData } from 'formgen-react';
+import { SPConfig } from './SPConfig';
 import { ITargetInfo } from 'gd-sprest/build/utils/types';
-import { SPProviderServiceBase } from '..';
+import { SPHelper } from '..';
 /**
 * The Provider Service to access SharePoint Lists
 */
-export declare class SPListProviderService extends SPProviderServiceBase implements IDataProviderService {
+export declare class SPListProviderService implements IDataProviderService {
     providerServiceKey: string;
+    protected targetInfo: ITargetInfo;
+    protected spHelper: SPHelper;
+    protected spConfig: SPConfig;
+    protected serverRelativeUrl: string;
+    /**
+     * The SharePoint Form Data
+     */
+    formData?: JFormData;
+    initialize(): void;
     /**
      * Takes the target Info as parmeter.
      */

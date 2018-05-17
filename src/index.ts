@@ -9,6 +9,5 @@ export { SPFormInputs } from './form/SPFormInputs';
 export { SPForm } from './form/SPForm';
 export { ISPFormProps } from './form/ISPForm.types';
 export { ObjectFabric } from './objects/ObjectFabric';
-export { SPProviderServiceBase } from './objects/SPProviderServiceBase';
 export { SPUserProfileProviderService } from './objects/SPUserProfileProviderService';
 export { SPListProviderService } from './objects/SPListProviderService';
