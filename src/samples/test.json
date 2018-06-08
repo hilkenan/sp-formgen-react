@@ -64,6 +64,10 @@
 					"allowMultiple": true
 				},
 				"label_position": [ "Top" ]
+			},{
+				"id": "saveButton",
+				"control_type":[ "SubmitButton" ],
+				"title": "Save"
 			}
 		]}
 	]}
